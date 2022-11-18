@@ -2,6 +2,8 @@ using Serilog;
 using Serilog.Events;
 using System.Reflection;
 using System.Text;
+using BookingWorkplace.DataBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookingWorkplace
 {
@@ -17,6 +19,10 @@ namespace BookingWorkplace
                     LogEventLevel.Information));
 
             // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("Default");
+            builder.Services.AddDbContext<BookingWorkplaceDbContext>(
+                optionBuilder => optionBuilder.UseSqlServer(connectionString));
+
             builder.Services.AddControllersWithViews();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
