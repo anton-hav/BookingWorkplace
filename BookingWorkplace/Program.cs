@@ -2,6 +2,9 @@ using Serilog;
 using Serilog.Events;
 using System.Reflection;
 using System.Text;
+using BookingWorkplace.Business.ServiceImplementations;
+using BookingWorkplace.Core.Abstractions;
+using BookingWorkplace.Data.Abstractions;
 using BookingWorkplace.Data.Abstractions.Repositories;
 using BookingWorkplace.Data.Repositories;
 using BookingWorkplace.DataBase;
@@ -36,6 +39,8 @@ namespace BookingWorkplace
             builder.Services.AddScoped<IRepository<Reservation>, Repository<Reservation>>();
             builder.Services.AddScoped<IRepository<Room>, Repository<Room>>();
             builder.Services.AddScoped<IRepository<Workplace>, Repository<Workplace>>();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 
