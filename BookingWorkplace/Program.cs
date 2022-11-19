@@ -2,7 +2,10 @@ using Serilog;
 using Serilog.Events;
 using System.Reflection;
 using System.Text;
+using BookingWorkplace.Data.Abstractions.Repositories;
+using BookingWorkplace.Data.Repositories;
 using BookingWorkplace.DataBase;
+using BookingWorkplace.DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingWorkplace
@@ -25,6 +28,14 @@ namespace BookingWorkplace
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            // Add repositories
+            builder.Services.AddScoped<IRepository<Employee>, Repository<Employee>>();
+            builder.Services.AddScoped<IRepository<Equipment>, Repository<Equipment>>();
+            builder.Services.AddScoped<IRepository<EquipmentForWorkplace>, Repository<EquipmentForWorkplace>>();
+            builder.Services.AddScoped<IRepository<Reservation>, Repository<Reservation>>();
+            builder.Services.AddScoped<IRepository<Room>, Repository<Room>>();
+            builder.Services.AddScoped<IRepository<Workplace>, Repository<Workplace>>();
 
             var app = builder.Build();
 

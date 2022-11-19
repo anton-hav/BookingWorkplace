@@ -28,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BookingWorkplace.Business\BookingWorkplace.Business.csproj" />
+    <ProjectReference Include="..\BookingWorkplace.Data.Abstractions\BookingWorkplace.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\BookingWorkplace.Data.Repositories\BookingWorkplace.Data.Repositories.csproj" />
     <ProjectReference Include="..\BookingWorkplace.DataBase\BookingWorkplace.DataBase.csproj" />
   </ItemGroup>
 

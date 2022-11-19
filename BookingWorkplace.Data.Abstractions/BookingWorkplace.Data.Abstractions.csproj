@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookingWorkplace.Core\BookingWorkplace.Core.csproj" />
+    <ProjectReference Include="..\BookingWorkplace.DataBase\BookingWorkplace.DataBase.csproj" />
+  </ItemGroup>
+
 </Project>
