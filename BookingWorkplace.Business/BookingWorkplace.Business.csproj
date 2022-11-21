@@ -6,4 +6,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="ServiceImplementations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookingWorkplace.Core\BookingWorkplace.Core.csproj" />
+    <ProjectReference Include="..\BookingWorkplace.Data.Abstractions\BookingWorkplace.Data.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

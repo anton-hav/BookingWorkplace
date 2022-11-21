@@ -17,6 +17,7 @@ public class BookingWorkplaceDbContext : DbContext
         builder.Entity<Reservation>()
             .HasIndex(reservation => new
             {
+                // delete EmployeeId from Index
                 reservation.EmployeeId,
                 reservation.WorkplaceId,
                 reservation.TimeFrom,

@@ -31,6 +31,9 @@ namespace BookingWorkplace
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            
+            // Add business services
+            builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 
             // Add repositories
             builder.Services.AddScoped<IRepository<Employee>, Repository<Employee>>();
