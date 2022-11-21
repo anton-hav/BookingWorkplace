@@ -34,8 +34,7 @@ public class BookingWorkplaceDbContext : DbContext
 
         builder.Entity<EquipmentForWorkplace>()
             .HasIndex(eFW => new {
-                eFW.EquipmentId,
-                eFW.WorkplacesId
+                eFW.EquipmentId, WorkplacesId = eFW.WorkplaceId
             })
             .IsUnique();
 
