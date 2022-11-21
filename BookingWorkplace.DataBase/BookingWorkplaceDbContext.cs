@@ -9,7 +9,6 @@ public class BookingWorkplaceDbContext : DbContext
     public DbSet<Equipment> Equipments { get; set; }
     public DbSet<EquipmentForWorkplace> EquipmentForWorkplaces { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
-    public DbSet<Room> Rooms { get; set; }
     public DbSet<Workplace> Workplaces { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -27,15 +26,9 @@ public class BookingWorkplaceDbContext : DbContext
 
         builder.Entity<Workplace>()
             .HasIndex(workplace => new {
-                workplace.RoomId,
+                workplace.Room,
+                workplace.Floor,
                 workplace.DeskNumber
-            })
-            .IsUnique();
-
-        builder.Entity<Room>()
-            .HasIndex(room => new {
-                room.Number,
-                room.Floor
             })
             .IsUnique();
 

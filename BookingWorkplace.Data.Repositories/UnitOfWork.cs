@@ -12,7 +12,6 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<Equipment> Equipment { get;}
     public IRepository<EquipmentForWorkplace> EquipmentForWorkplaces { get; }
     public IRepository<Reservation> Reservations { get;}
-    public IRepository<Room> Rooms { get;}
     public IRepository<Workplace> Workplaces { get;}
 
     public UnitOfWork(BookingWorkplaceDbContext dbContext, 
@@ -20,7 +19,6 @@ public class UnitOfWork : IUnitOfWork
         IRepository<Equipment> equipment, 
         IRepository<EquipmentForWorkplace> equipmentForWorkplaces, 
         IRepository<Reservation> reservations, 
-        IRepository<Room> rooms, 
         IRepository<Workplace> workplaces)
     {
         _dbContext = dbContext;
@@ -28,7 +26,6 @@ public class UnitOfWork : IUnitOfWork
         Equipment = equipment;
         EquipmentForWorkplaces = equipmentForWorkplaces;
         Reservations = reservations;
-        Rooms = rooms;
         Workplaces = workplaces;
     }
 

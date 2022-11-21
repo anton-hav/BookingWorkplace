@@ -40,7 +40,6 @@ namespace BookingWorkplace
             builder.Services.AddScoped<IRepository<Equipment>, Repository<Equipment>>();
             builder.Services.AddScoped<IRepository<EquipmentForWorkplace>, Repository<EquipmentForWorkplace>>();
             builder.Services.AddScoped<IRepository<Reservation>, Repository<Reservation>>();
-            builder.Services.AddScoped<IRepository<Room>, Repository<Room>>();
             builder.Services.AddScoped<IRepository<Workplace>, Repository<Workplace>>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
