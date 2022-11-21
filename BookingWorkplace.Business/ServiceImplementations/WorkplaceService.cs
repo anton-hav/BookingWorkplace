@@ -5,16 +5,15 @@ using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Data.Abstractions;
 using BookingWorkplace.DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BookingWorkplace.Business.ServiceImplementations;
 
-public class EquipmentService : IEquipmentService
+public class WorkplaceService : IWorkplaceService
 {
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
-    public EquipmentService(IMapper mapper, 
+    public WorkplaceService(IMapper mapper, 
         IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
@@ -29,17 +28,16 @@ public class EquipmentService : IEquipmentService
     /// <param name="id">unique identifier</param>
     /// <returns>data transfer object corresponding to the id</returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<EquipmentDto> GetEquipmentByIdAsync(Guid id)
+    public async Task<WorkplaceDto> GetWorkplaceByIdAsync(Guid id)
     {
-        var entity = await _unitOfWork.Equipment.GetByIdAsync(id);
+        var entity = await _unitOfWork.Workplaces.GetByIdAsync(id);
 
         if (entity == null)
-            throw new ArgumentException("No record of the equipment was found in the database.", nameof(id));
-            
-        var dto = _mapper.Map<EquipmentDto>(entity);
+            throw new ArgumentException("No record of the workplace was found in the database.", nameof(id));
+
+        var dto = _mapper.Map<WorkplaceDto>(entity);
         return dto;
     }
-
 
     /// <summary>
     /// Execute an entity search on the data source by IQueryStringParameters.SearchString. Execute a sort,
@@ -48,24 +46,28 @@ public class EquipmentService : IEquipmentService
     /// </summary>
     /// <param name="parameters">object that implements IQueryStringParameters</param>
     /// <returns>PagedList of data transfer objects</returns>
-    public PagedList<EquipmentDto> GetEquipmentByQueryStringParameters(IQueryStringParameters parameters)
+    public PagedList<WorkplaceDto> GetWorkplacesByQueryStringParameters(IQueryStringParameters parameters)
     {
-        var query = _unitOfWork.Equipment
+        var query = _unitOfWork.Workplaces
             .Get()
             .AsNoTracking();
 
         if (!String.IsNullOrEmpty(parameters.SearchString))
-            query = query.Where(entity => entity.Type.Contains(parameters.SearchString));
+            query = query.Where(entity => entity.Room.Contains(parameters.SearchString)
+            || entity.Floor.Contains(parameters.SearchString)
+            || entity.DeskNumber.Contains(parameters.SearchString));
 
         var mappedQuery = query
-            .OrderBy(entity => entity.Type)
-            .Select(entity => _mapper.Map<EquipmentDto>(entity));
+            .OrderBy(entity => entity.Floor)
+            .ThenBy(entity => entity.Room)
+            .ThenBy(entity => entity.DeskNumber)
+            .Select(entity => _mapper.Map<WorkplaceDto>(entity));
 
         if (mappedQuery == null)
             throw new ArgumentException("Failed to find records in the database that match the specified parameters. ",
                 nameof(parameters));
 
-        var list = PagedList<EquipmentDto>.ToPagedList(mappedQuery, parameters);
+        var list = PagedList<WorkplaceDto>.ToPagedList(mappedQuery, parameters);
 
         return list;
     }
@@ -73,31 +75,36 @@ public class EquipmentService : IEquipmentService
     /// <summary>
     /// Checks for existing a record in the data source that matches the parameters.
     /// </summary>
-    /// <param name="typeName">equipment type name</param>
+    /// <param name="roomNumber">room number of the current workplace as a string</param>
+    /// <param name="floorNumber">floor number of the current workplace as a string</param>
+    /// <param name="deskNumber">desk number of the current workplace as a string</param>
     /// <returns>A boolean (true if the record exists, or false if it does not exist)</returns>
-    public async Task<bool> IsEquipmentExistAsync(string typeName)
+    public async Task<bool> IsWorkplaceExistAsync(string roomNumber, string floorNumber, string deskNumber)
     {
-        var entity = await _unitOfWork.Equipment
+        var entity = await _unitOfWork.Workplaces
             .Get()
-            .FirstOrDefaultAsync(entity => entity.Type.Equals(typeName));
+            .FirstOrDefaultAsync(entity => entity.Floor.Equals(floorNumber)
+                                           && entity.Room.Equals(roomNumber)
+                                           && entity.DeskNumber.Equals(deskNumber));
+
 
         return entity != null;
     }
 
     /// <summary>
-    /// Execute mapping from data transfer object to entity type and create a new record in the data source.
+    /// Create a new record in the data source.
     /// </summary>
     /// <param name="dto">data transfer object</param>
     /// <returns>the number of successfully created records in the data source</returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<int> CreateEquipmentAsync(EquipmentDto dto)
+    public async Task<int> CreateWorkplaceAsync(WorkplaceDto dto)
     {
-        var entity = _mapper.Map<Equipment>(dto);
+        var entity = _mapper.Map<Workplace>(dto);
 
         if (entity == null)
-            throw new ArgumentException("Mapping EquipmentDto to Equipment was not possible.", nameof(dto));
+            throw new ArgumentException("Mapping WorkplaceDto to Workplace was not possible.", nameof(dto));
 
-        await _unitOfWork.Equipment.AddAsync(entity);
+        await _unitOfWork.Workplaces.AddAsync(entity);
         var result = await _unitOfWork.Commit();
         return result;
     }
@@ -108,25 +115,42 @@ public class EquipmentService : IEquipmentService
     /// <param name="id">unique identifier of record</param>
     /// <param name="dto">modified data transfer object</param>
     /// <returns>the number of records successfully changed</returns>
-    public async Task<int> UpdateAsync(Guid id, EquipmentDto dto)
+    public async Task<int> UpdateAsync(Guid id, WorkplaceDto dto)
     {
-        var sourceDto = await GetEquipmentByIdAsync(id);
+        var sourceDto = await GetWorkplaceByIdAsync(id);
 
         var patchList = new List<PatchModel>();
 
-        if (!dto.Type.Equals(sourceDto.Type))
+        if (!dto.Room.Equals(sourceDto.Room))
         {
             patchList.Add(new PatchModel()
             {
-                PropertyName = nameof(dto.Type),
-                PropertyValue = dto.Type
+                PropertyName = nameof(dto.Room),
+                PropertyValue = dto.Room
             });
         }
 
-        await _unitOfWork.Equipment.PatchAsync(id, patchList);
+        if (!dto.Floor.Equals(sourceDto.Floor))
+        {
+            patchList.Add(new PatchModel()
+            {
+                PropertyName = nameof(dto.Floor),
+                PropertyValue = dto.Floor
+            });
+        }
+
+        if (!dto.DeskNumber.Equals(sourceDto.DeskNumber))
+        {
+            patchList.Add(new PatchModel()
+            {
+                PropertyName = nameof(dto.DeskNumber),
+                PropertyValue = dto.DeskNumber
+            });
+        }
+
+        await _unitOfWork.Workplaces.PatchAsync(id, patchList);
         return await _unitOfWork.Commit();
     }
-
 
     public async Task<int> DeleteAsync(Guid id)
     {

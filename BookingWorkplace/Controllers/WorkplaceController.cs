@@ -1,24 +1,24 @@
 ﻿using AutoMapper;
+using BookingWorkplace.Business.ServiceImplementations;
 using BookingWorkplace.Business;
 using BookingWorkplace.Core.Abstractions;
-using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using BookingWorkplace.Core.DataTransferObjects;
 
 namespace BookingWorkplace.Controllers
 {
-    public class EquipmentController : Controller
+    public class WorkplaceController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly IEquipmentService _equipmentService;
+        private readonly IWorkplaceService _workplaceService;
 
-        public EquipmentController(IMapper mapper, 
-            IEquipmentService equipmentService)
+        public WorkplaceController(IMapper mapper, 
+            IWorkplaceService workplaceService)
         {
             _mapper = mapper;
-            _equipmentService = equipmentService;
+            _workplaceService = workplaceService;
         }
 
         [HttpGet]
@@ -26,15 +26,15 @@ namespace BookingWorkplace.Controllers
         {
             try
             {
-                var listOfEquipment = _equipmentService
-                    .GetEquipmentByQueryStringParameters(parameters);
-                
-                var model = new ListOfEquipmentModel()
+                var workplaces = _workplaceService
+                    .GetWorkplacesByQueryStringParameters(parameters);
+
+                var model = new ListOfWorkplacesModel()
                 {
-                    Equipment = listOfEquipment,
+                    Workplaces = workplaces,
                     SearchString = parameters,
                 };
-                
+
                 return View(model);
             }
             catch (Exception ex)
@@ -63,12 +63,12 @@ namespace BookingWorkplace.Controllers
         }
 
         /// <summary>
-        /// Endpoint that create the equipment record in the data source.
+        /// Endpoint that create the workplace record in the data source.
         /// </summary>
-        /// <param name="model">equipment model</param>
-        /// <returns>redirect to /Equipment/Index if model is valid</returns>
+        /// <param name="model">workplace model</param>
+        /// <returns>redirect to /Workplace/Index if model is valid</returns>
         [HttpPost]
-        public async Task<IActionResult> Create(EquipmentModel model)
+        public async Task<IActionResult> Create(WorkplaceModel model)
         {
             try
             {
@@ -76,10 +76,10 @@ namespace BookingWorkplace.Controllers
                 {
                     model.Id = Guid.NewGuid();
 
-                    var dto = _mapper.Map<EquipmentDto>(model);
-                    
-                    var result = await _equipmentService.CreateEquipmentAsync(dto);
-                    return RedirectToAction("Index", "Equipment");
+                    var dto = _mapper.Map<WorkplaceDto>(model);
+
+                    var result = await _workplaceService.CreateWorkplaceAsync(dto);
+                    return RedirectToAction("Index", "Workplace");
                 }
 
                 return View(model);
@@ -108,9 +108,9 @@ namespace BookingWorkplace.Controllers
             {
                 if (id == Guid.Empty) throw new ArgumentException(nameof(id));
 
-                var dto = await _equipmentService.GetEquipmentByIdAsync(id);
+                var dto = await _workplaceService.GetWorkplaceByIdAsync(id);
 
-                var editModel = _mapper.Map<EquipmentModel>(dto);
+                var editModel = _mapper.Map<WorkplaceModel>(dto);
 
                 return View(editModel);
             }
@@ -127,21 +127,21 @@ namespace BookingWorkplace.Controllers
         }
 
         /// <summary>
-        /// Endpoint that changes the equipment record in the data source.
+        /// Endpoint that changes the workplace record in the data source.
         /// </summary>
         /// <param name="model">modified model</param>
-        /// <returns>redirect to /Equipment/Index if model is valid</returns>
+        /// <returns>redirect to /Workplace/Index if model is valid</returns>
         [HttpPost]
-        public async Task<IActionResult> Edit(EquipmentModel model)
+        public async Task<IActionResult> Edit(WorkplaceModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var dto = _mapper.Map<EquipmentDto>(model);
-                    await _equipmentService.UpdateAsync(model.Id, dto);
+                    var dto = _mapper.Map<WorkplaceDto>(model);
+                    await _workplaceService.UpdateAsync(model.Id, dto);
 
-                    return RedirectToAction("Index", "Equipment");
+                    return RedirectToAction("Index", "Workplace");
 
                 }
                 return View(model);
@@ -159,16 +159,19 @@ namespace BookingWorkplace.Controllers
         }
 
         /// <summary>
-        /// Checks the equipment for existing equipment with the same type name in the data source.
+        /// Checks the workplace for existing workplace with the same room number
+        /// and floor number and desk number in the data source.
         /// </summary>
-        /// <param name="type">type name of equipment</param>
+        /// <param name="deskNumber">desk number of the current workplace as a string</param>
+        /// <param name="floor">floor number of the current workplace as a string</param>
+        /// <param name="room">room number of the current workplace as a string</param>
         /// <returns>OkObjectResult with true if the equipment is does not exist or false if the equipment exist</returns>
         [HttpPost]
-        public async Task<IActionResult> CheckEquipmentForExistence(string type)
+        public async Task<IActionResult> CheckWorkplaceForExistence(string deskNumber, string floor, string room)
         {
             try
             {
-                var isValid = await _equipmentService.IsEquipmentExistAsync(type);
+                var isValid = await _workplaceService.IsWorkplaceExistAsync(room, floor, deskNumber);
                 return Ok(!isValid);
             }
             catch (Exception ex)
@@ -178,5 +181,4 @@ namespace BookingWorkplace.Controllers
             }
         }
     }
-
 }

@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@model WorkplaceModel
+@{
+    ViewData["Title"] = "Edit workplace";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-controller="Workplace" asp-action="Edit" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <input asp-for="Id" class="form-control" type="hidden"/>
+    </div>
+    <div class="mb-3">
+        <label for="floor" class="form-label">Floor</label>
+        <input asp-for="Floor" class="form-control" id="floor" />
+        <span asp-validation-for="Floor" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label for="room" class="form-label">Room</label>
+        <input asp-for="Room" class="form-control" id="room" />
+        <span asp-validation-for="Room" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label for="desk-number" class="form-label">Desk number</label>
+        <input asp-for="DeskNumber" class="form-control" id="desk-number" />
+        <span asp-validation-for="DeskNumber" class="text-danger"></span>
+    </div>
+
+    <input type="submit" class="btn btn-primary" value="Submit" />
+</form>
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
