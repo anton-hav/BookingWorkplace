@@ -5,7 +5,8 @@ namespace BookingWorkplace.DataBase;
 
 public class BookingWorkplaceDbContext : DbContext
 {
-    public DbSet<Employee> Employees { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
     public DbSet<Equipment> Equipments { get; set; }
     public DbSet<EquipmentForWorkplace> EquipmentForWorkplaces { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
@@ -16,8 +17,8 @@ public class BookingWorkplaceDbContext : DbContext
         builder.Entity<Reservation>()
             .HasIndex(reservation => new
             {
-                // delete EmployeeId from Index
-                reservation.EmployeeId,
+                //todo: delete UserId from Index
+                reservation.UserId,
                 reservation.WorkplaceId,
                 reservation.TimeFrom,
                 reservation.TimeTo,
@@ -40,6 +41,14 @@ public class BookingWorkplaceDbContext : DbContext
 
         builder.Entity<Equipment>()
             .HasIndex(equipment => equipment.Id)
+            .IsUnique();
+
+        builder.Entity<User>()
+            .HasIndex(user => user.Email)
+            .IsUnique();
+
+        builder.Entity<Role>()
+            .HasIndex(role => role.Name)
             .IsUnique();
     }
 

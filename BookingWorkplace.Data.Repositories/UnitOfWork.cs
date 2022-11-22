@@ -8,25 +8,28 @@ namespace BookingWorkplace.Data.Repositories;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly BookingWorkplaceDbContext _dbContext;
-    public IRepository<Employee> Employees { get;}
+    public IRepository<User> Users { get;}
+    public IRepository<Role> Roles { get; }
     public IRepository<Equipment> Equipment { get;}
     public IRepository<EquipmentForWorkplace> EquipmentForWorkplaces { get; }
     public IRepository<Reservation> Reservations { get;}
     public IRepository<Workplace> Workplaces { get;}
 
     public UnitOfWork(BookingWorkplaceDbContext dbContext, 
-        IRepository<Employee> employees, 
+        IRepository<User> users, 
         IRepository<Equipment> equipment, 
         IRepository<EquipmentForWorkplace> equipmentForWorkplaces, 
         IRepository<Reservation> reservations, 
-        IRepository<Workplace> workplaces)
+        IRepository<Workplace> workplaces, 
+        IRepository<Role> roles)
     {
         _dbContext = dbContext;
-        Employees = employees;
+        Users = users;
         Equipment = equipment;
         EquipmentForWorkplaces = equipmentForWorkplaces;
         Reservations = reservations;
         Workplaces = workplaces;
+        Roles = roles;
     }
 
 

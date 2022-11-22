@@ -5,7 +5,8 @@ namespace BookingWorkplace.Data.Abstractions;
 
 public interface IUnitOfWork
 {
-    IRepository<Employee> Employees { get; }
+    IRepository<User> Users { get; }
+    IRepository<Role> Roles { get; }
     IRepository<Equipment> Equipment { get; }
     IRepository<EquipmentForWorkplace> EquipmentForWorkplaces { get; }
     IRepository<Reservation> Reservations { get; }

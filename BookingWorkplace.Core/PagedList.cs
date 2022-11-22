@@ -12,6 +12,13 @@ public class PagedList<T> : List<T>
     public bool HasPrevious => CurrentPage > 1;
     public bool HasNext => CurrentPage < TotalPages;
 
+    /// <summary>
+    /// Constructor without any parameters
+    /// </summary>
+    /// <remarks>
+    /// It added for compatibility with AutoMapper and others utils.
+    /// Don't use it to create new instance directly.
+    /// </remarks>
     public PagedList()
     {
 
