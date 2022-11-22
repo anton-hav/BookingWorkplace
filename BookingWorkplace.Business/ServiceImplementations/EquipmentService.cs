@@ -70,6 +70,21 @@ public class EquipmentService : IEquipmentService
         return list;
     }
 
+    public async Task<List<EquipmentDto>> GetAvailableEquipmentToAddToWorkplaceByWorkplaceIdAsync(Guid id)
+    {
+        var list = await _unitOfWork.Equipment
+            .Get()
+            .Where(equip => !equip.EquipmentForWorkplaces.Any(efw => efw.WorkplaceId.Equals(id)))
+            .AsNoTracking()
+            .Select(equip => _mapper.Map<EquipmentDto>(equip))
+            .ToListAsync();
+
+        if (list == null)
+            throw new ArgumentException(nameof(id));
+
+        return list;
+    }
+
     /// <summary>
     /// Checks for existing a record in the data source that matches the parameters.
     /// </summary>
@@ -127,9 +142,24 @@ public class EquipmentService : IEquipmentService
         return await _unitOfWork.Commit();
     }
 
-
+    /// <summary>
+    /// Remove a record from the data source
+    /// </summary>
+    /// <param name="id">unique identifier of record</param>
+    /// <returns>the number of records successfully removed</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<int> DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var entity = await _unitOfWork.Equipment.GetByIdAsync(id);
+
+        if (entity != null)
+        {
+            _unitOfWork.Equipment.Remove(entity);
+            return await _unitOfWork.Commit();
+        }
+        else
+        {
+            throw new ArgumentException("The equipment for removing doesn't exist", nameof(id));
+        }
     }
 }

@@ -35,6 +35,7 @@ namespace BookingWorkplace
             // Add business services
             builder.Services.AddScoped<IEquipmentService, EquipmentService>();
             builder.Services.AddScoped<IWorkplaceService, WorkplaceService>();
+            builder.Services.AddScoped<IEquipmentForWorkplaceService, EquipmentForWorkplaceService>();
 
             // Add repositories
             builder.Services.AddScoped<IRepository<Employee>, Repository<Employee>>();

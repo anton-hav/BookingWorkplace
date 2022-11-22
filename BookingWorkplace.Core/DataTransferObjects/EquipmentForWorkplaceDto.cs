@@ -7,7 +7,7 @@ public class EquipmentForWorkplaceDto
     public Guid EquipmentId { get; set; }
     public EquipmentDto Equipment { get; set; }
 
-    public Guid WorkplacesId { get; set; }
+    public Guid WorkplaceId { get; set; }
     public WorkplaceDto Workplace { get; set; }
 
     public int Count {get; set; }

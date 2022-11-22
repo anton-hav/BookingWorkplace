@@ -21,9 +21,7 @@ public class WorkplaceService : IWorkplaceService
     }
 
     /// <summary>
-    /// Executes a retrieval query with the corresponding "id" of the entity in the data source.
-    /// If a matching entity is found, a mapping is performed from entity type to data transfer object type.
-    /// The result of the mapping is returned
+    /// Gets the object that corresponding Id  from the data source and returns as a response.
     /// </summary>
     /// <param name="id">unique identifier</param>
     /// <returns>data transfer object corresponding to the id</returns>
@@ -31,6 +29,32 @@ public class WorkplaceService : IWorkplaceService
     public async Task<WorkplaceDto> GetWorkplaceByIdAsync(Guid id)
     {
         var entity = await _unitOfWork.Workplaces.GetByIdAsync(id);
+
+        if (entity == null)
+            throw new ArgumentException("No record of the workplace was found in the database.", nameof(id));
+
+        var dto = _mapper.Map<WorkplaceDto>(entity);
+        return dto;
+    }
+
+    /// <summary>
+    /// Executes a retrieval query with the corresponding "id" of the entity in the data source include
+    /// EquipmentForWorkplaces property with its navigate properties. If a matching entity is found,
+    /// a mapping is performed from entity type to data transfer object type.
+    /// The result of the mapping is returned
+    /// </summary>
+    /// <param name="id">unique identifier</param>
+    /// <returns>data transfer object corresponding to the id</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<WorkplaceDto> GetWorkplaceWithEquipmentByIdAsync(Guid id)
+    {
+        var entity = await _unitOfWork.Workplaces
+            .Get()
+            .Where(entity => entity.Id.Equals(id))
+            .Include(entity => entity.EquipmentForWorkplaces)
+            .ThenInclude(eFW => eFW.Equipment)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
 
         if (entity == null)
             throw new ArgumentException("No record of the workplace was found in the database.", nameof(id));
@@ -86,8 +110,7 @@ public class WorkplaceService : IWorkplaceService
             .FirstOrDefaultAsync(entity => entity.Floor.Equals(floorNumber)
                                            && entity.Room.Equals(roomNumber)
                                            && entity.DeskNumber.Equals(deskNumber));
-
-
+        
         return entity != null;
     }
 

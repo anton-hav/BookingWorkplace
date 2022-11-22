@@ -98,7 +98,7 @@
                                 <td>@item.DeskNumber</td>
                                 <td>
                                     <div class="btn-group" role="group" aria-label="Actions">
-                                        <a type="button" class="btn btn-link" href="#">Details</a>
+                                        <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Details" asp-route-id="@item.Id">Details</a>
                                         <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                                         <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="" asp-route-id="@item.Id">Delete</a>
                                     </div>

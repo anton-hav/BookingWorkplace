@@ -1,4 +1,5 @@
-﻿using BookingWorkplace.Core;
+﻿using System.Linq.Expressions;
+using BookingWorkplace.Core;
 using BookingWorkplace.Data.Abstractions.Repositories;
 using BookingWorkplace.DataBase;
 using BookingWorkplace.DataBase.Entities;
@@ -28,6 +29,19 @@ public class Repository<T> : IRepository<T>
     public IQueryable<T> Get()
     {
         return DbSet;
+    }
+
+    public virtual IQueryable<T> FindBy(Expression<Func<T, bool>> searchExpression,
+        params Expression<Func<T, object>>[] includes)
+    {
+        var result = DbSet.Where(searchExpression);
+        if (includes.Any())
+        {
+            result = includes.Aggregate(result, (current, include) =>
+                current.Include(include));
+        }
+
+        return result;
     }
 
     public virtual async Task AddAsync(T entity)

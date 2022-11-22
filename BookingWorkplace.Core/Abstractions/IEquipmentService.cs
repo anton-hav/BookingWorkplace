@@ -7,6 +7,8 @@ public interface IEquipmentService
     //READ
     Task<EquipmentDto> GetEquipmentByIdAsync(Guid id);
     PagedList<EquipmentDto> GetEquipmentByQueryStringParameters(IQueryStringParameters parameters);
+    Task<List<EquipmentDto>> GetAvailableEquipmentToAddToWorkplaceByWorkplaceIdAsync(Guid id);
+
     Task<bool> IsEquipmentExistAsync(string typeName);
 
     //CREATE

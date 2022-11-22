@@ -1,4 +1,5 @@
-﻿using BookingWorkplace.Core;
+﻿using System.Linq.Expressions;
+using BookingWorkplace.Core;
 using BookingWorkplace.DataBase.Entities;
 
 namespace BookingWorkplace.Data.Abstractions.Repositories;
@@ -8,6 +9,8 @@ public interface IRepository<T> where T : IBaseEntity
     //READ
     Task<T?> GetByIdAsync(Guid id);
     IQueryable<T> Get();
+    IQueryable<T> FindBy(Expression<Func<T, bool>> searchExpression,
+        params Expression<Func<T, object>>[] includes);
 
     //CREATE
     Task AddAsync(T entity);

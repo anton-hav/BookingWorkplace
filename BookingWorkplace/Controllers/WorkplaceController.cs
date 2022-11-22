@@ -6,6 +6,8 @@ using BookingWorkplace.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using BookingWorkplace.Core.DataTransferObjects;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BookingWorkplace.Controllers
 {
@@ -13,12 +15,18 @@ namespace BookingWorkplace.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IWorkplaceService _workplaceService;
+        private readonly IEquipmentService _equipmentService;
+        private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
 
         public WorkplaceController(IMapper mapper, 
-            IWorkplaceService workplaceService)
+            IWorkplaceService workplaceService, 
+            IEquipmentService equipmentService, 
+            IEquipmentForWorkplaceService equipmentForWorkplaceService)
         {
             _mapper = mapper;
             _workplaceService = workplaceService;
+            _equipmentService = equipmentService;
+            _equipmentForWorkplaceService = equipmentForWorkplaceService;
         }
 
         [HttpGet]
@@ -174,10 +182,94 @@ namespace BookingWorkplace.Controllers
                 var isValid = await _workplaceService.IsWorkplaceExistAsync(room, floor, deskNumber);
                 return Ok(!isValid);
             }
+            catch (ArgumentException ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                throw;
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            try
+            {
+                var dto = await _workplaceService.GetWorkplaceWithEquipmentByIdAsync(id);
+
+                var model = _mapper.Map<WorkplaceWithEquipmentModel>(dto);
+
+                var equipmentList = await _equipmentService.GetAvailableEquipmentToAddToWorkplaceByWorkplaceIdAsync(id);
+
+                model.AvailableEquipmentList = new SelectList(equipmentList, nameof(EquipmentDto.Id), nameof(EquipmentDto.Type));
+
+                return View(model);
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddEquipmentToWorkplace(EquipmentForWorkplaceModel model)
+        {
+            try
+            {
+                model.Id = Guid.NewGuid();
+                var dto = _mapper.Map<EquipmentForWorkplaceDto>(model);
+
+                var result = await _equipmentForWorkplaceService.CreateEquipmentForWorkplaceAsync(dto);
+                return RedirectToAction("Details", "Workplace", new { id = dto.WorkplaceId });
+
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RemoveEquipmentFromWorkplace(Guid id)
+        {
+            try
+            {
+                if (!id.Equals(Guid.Empty))
+                {
+                    var dto = await _equipmentForWorkplaceService.GetEquipmentForWorkplaceByIdAsync(id);
+                    await _equipmentForWorkplaceService.DeleteAsync(id);
+                    return RedirectToAction("Details", "Workplace", new { id = dto.WorkplaceId });
+                }
+
+                return Ok();
+
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
             }
         }
     }

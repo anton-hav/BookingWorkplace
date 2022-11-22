@@ -1,0 +1,23 @@
+﻿@model EquipmentForWorkplaceModel
+
+<form asp-controller="Workplace" asp-action="AddEquipmentToWorkplace" method="post">
+    <div class="row align-content-center">
+        <input asp-for="Id" class="form-control" type="hidden" value="@Guid.Empty"/>
+        <input asp-for="WorkplaceId" class="form-control" type="hidden"/>
+        <div class="col-8">
+            <select asp-for="EquipmentId"
+                    class="form-select"
+                    asp-items="Model.AvailableEquipmentList">
+                <option selected disabled>Please select one</option>
+            </select>
+        </div>
+        <div class="col-2">
+            @*<label for="count" class="form-label">Count</label>*@
+            <input asp-for="Count" type="number" min="1" max="999" class="form-control" value="1" id="count"/>
+            <span asp-validation-for="Count" class="text-danger"></span>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-primary" type="submit">Add</button>
+        </div>
+    </div>
+</form>

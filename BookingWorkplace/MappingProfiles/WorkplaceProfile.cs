@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BookingWorkplace.Business;
+using BookingWorkplace.Core;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.DataBase.Entities;
 using BookingWorkplace.Models;
@@ -14,5 +16,13 @@ public class WorkplaceProfile : Profile
 
         CreateMap<WorkplaceDto, WorkplaceModel>();
         CreateMap<WorkplaceModel, WorkplaceDto>();
+
+        CreateMap<WorkplaceDto, WorkplaceWithEquipmentModel>()
+            .ForMember(model => model.EquipmentForWorkplaces, 
+                opt 
+                    => opt.MapFrom(dto 
+                        => PagedList<EquipmentForWorkplaceDto>
+                            .ToPagedList(dto.EquipmentForWorkplaces.AsQueryable(), new PaginationParameters())));
+        CreateMap<WorkplaceWithEquipmentModel, WorkplaceDto>();
     }
 }
