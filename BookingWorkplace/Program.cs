@@ -9,7 +9,9 @@ using BookingWorkplace.Data.Abstractions.Repositories;
 using BookingWorkplace.Data.Repositories;
 using BookingWorkplace.DataBase;
 using BookingWorkplace.DataBase.Entities;
+using BookingWorkplace.IdentityManagers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace BookingWorkplace
 {
@@ -31,11 +33,28 @@ namespace BookingWorkplace
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+            builder.Services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                    options.LoginPath = new PathString(@"/Account/Login");
+                    options.LogoutPath = new PathString(@"/Account/Logout");
+                    options.AccessDeniedPath = new PathString(@"/Account/Login");
+                });
+
+            builder.Services.AddHttpContextAccessor();
+
             // Add business services
             builder.Services.AddScoped<IEquipmentService, EquipmentService>();
             builder.Services.AddScoped<IWorkplaceService, WorkplaceService>();
             builder.Services.AddScoped<IEquipmentForWorkplaceService, EquipmentForWorkplaceService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
+
+            // Add custom identity services
+            builder.Services.AddScoped<ISignInManager, SignInManager>();
+            builder.Services.AddScoped<IUserManager, UserManager>();
 
             // Add repositories
             builder.Services.AddScoped<IRepository<User>, Repository<User>>();
@@ -46,6 +65,8 @@ namespace BookingWorkplace
             builder.Services.AddScoped<IRepository<Workplace>, Repository<Workplace>>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            builder.Configuration.AddJsonFile("secrets.json");
 
             var app = builder.Build();
 
@@ -62,6 +83,7 @@ namespace BookingWorkplace
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
@@ -72,7 +94,7 @@ namespace BookingWorkplace
         }
 
         /// <summary>
-        ///     Returns the path for log file recording.
+        /// Returns the path for log file recording.
         /// </summary>
         /// <returns>A string whose value contains a path to the log file</returns>
         private static string GetPathToLogFile()

@@ -4,8 +4,8 @@ public class ReservationDto
 {
     public Guid Id { get; set; }
 
-    public Guid EmployeeId { get; set; }
-    public EmployeeDto Employee { get; set; }
+    public Guid UserId { get; set; }
+    public UserDto User { get; set; }
 
     public Guid WorkplaceId { get; set; }
     public WorkplaceDto Workplace { get; set; }
