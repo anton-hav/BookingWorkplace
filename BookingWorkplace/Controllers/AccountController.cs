@@ -14,19 +14,17 @@ namespace BookingWorkplace.Controllers
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
         private readonly ISignInManager _signInManager;
         private readonly IUserManager _userManager;
 
 
         public AccountController(IUserService userService, 
-            IRoleService roleService, 
             IMapper mapper, 
-            ISignInManager signInManager, IUserManager userManager)
+            ISignInManager signInManager, 
+            IUserManager userManager)
         {
             _userService = userService;
-            _roleService = roleService;
             _mapper = mapper;
             _signInManager = signInManager;
             _userManager = userManager;

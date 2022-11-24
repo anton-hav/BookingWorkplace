@@ -25,7 +25,12 @@
 
 <nav class="navbar" aria-label="page navigation">
     <div class="container-fluid">
-        <a type="button" class="btn btn-primary" asp-controller="Equipment" asp-action="Create">Create new</a>
+        @{
+            if (Model.IsAdmin)
+            {
+                <a type="button" class="btn btn-primary" asp-controller="Equipment" asp-action="Create">Create new</a>
+            }
+        }
         <ul class="pagination justify-content-center">
             <li class="page-item @prevDisabled">
                 <a class="page-link"
@@ -95,8 +100,13 @@
                                 <td>
                                     <div class="btn-group" role="group" aria-label="Actions">
                                         <a type="button" class="btn btn-link" href="#">Details</a>
-                                        <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                        <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="" asp-route-id="@item.Id">Delete</a>
+                                        @{
+                                            if (Model.IsAdmin)
+                                            {
+                                                <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                                <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="" asp-route-id="@item.Id">Delete</a>
+                                            }
+                                        }
                                     </div>
                                 </td>
                             </tr>

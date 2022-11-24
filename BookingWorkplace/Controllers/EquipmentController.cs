@@ -3,22 +3,27 @@ using BookingWorkplace.Business;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 namespace BookingWorkplace.Controllers
 {
+    [Authorize(Roles = "User, Admin")]
     public class EquipmentController : Controller
     {
         private readonly IMapper _mapper;
         private readonly IEquipmentService _equipmentService;
+        private readonly IUserManager _userManager;
 
         public EquipmentController(IMapper mapper, 
-            IEquipmentService equipmentService)
+            IEquipmentService equipmentService, 
+            IUserManager userManager)
         {
             _mapper = mapper;
             _equipmentService = equipmentService;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -28,11 +33,14 @@ namespace BookingWorkplace.Controllers
             {
                 var listOfEquipment = _equipmentService
                     .GetEquipmentByQueryStringParameters(parameters);
+
+                var isUserAdmin = _userManager.IsAdmin();
                 
                 var model = new ListOfEquipmentModel()
                 {
                     Equipment = listOfEquipment,
                     SearchString = parameters,
+                    IsAdmin = isUserAdmin,
                 };
                 
                 return View(model);
@@ -48,6 +56,7 @@ namespace BookingWorkplace.Controllers
         /// Shows the create page
         /// </summary>
         /// <returns>ViewResult for response</returns>
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -67,6 +76,7 @@ namespace BookingWorkplace.Controllers
         /// </summary>
         /// <param name="model">equipment model</param>
         /// <returns>redirect to /Equipment/Index if model is valid</returns>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create(EquipmentModel model)
         {
@@ -101,6 +111,7 @@ namespace BookingWorkplace.Controllers
         /// </summary>
         /// <param name="id">unique identifier of the object to be changed</param>
         /// <returns>ViewResult for response</returns>
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -131,6 +142,7 @@ namespace BookingWorkplace.Controllers
         /// </summary>
         /// <param name="model">modified model</param>
         /// <returns>redirect to /Equipment/Index if model is valid</returns>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Edit(EquipmentModel model)
         {

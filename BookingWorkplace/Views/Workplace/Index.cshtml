@@ -25,7 +25,12 @@
 
 <nav class="navbar" aria-label="page navigation">
     <div class="container-fluid">
-        <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Create">Create new</a>
+        @{
+            if (Model.IsAdmin)
+            {
+                <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Create">Create new</a>
+            }
+        }
         <ul class="pagination justify-content-center">
             <li class="page-item @prevDisabled">
                 <a class="page-link"
@@ -48,9 +53,9 @@
                     {
                         <li class="page-item">
                             <a class="page-link"
-                   asp-controller="Workplace"
-                   asp-action="Index"
-                   asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Workplaces.PageSize, CurrentPage = i }).ToDictionary();">
+                               asp-controller="Workplace"
+                               asp-action="Index"
+                               asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Workplaces.PageSize, CurrentPage = i }).ToDictionary();">
                                 @i
                             </a>
                         </li>
@@ -66,7 +71,7 @@
                 </a>
             </li>
         </ul>
-        <partial name="_SearchBar" model="Model.SearchString" />
+        <partial name="_SearchBar" model="Model.SearchString"/>
 
     </div>
 </nav>
@@ -99,8 +104,13 @@
                                 <td>
                                     <div class="btn-group" role="group" aria-label="Actions">
                                         <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                                        <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                        <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="" asp-route-id="@item.Id">Delete</a>
+                                        @{
+                                            if (Model.IsAdmin)
+                                            {
+                                                <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                                <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="" asp-route-id="@item.Id">Delete</a>
+                                            }
+                                        }
                                     </div>
                                 </td>
                             </tr>

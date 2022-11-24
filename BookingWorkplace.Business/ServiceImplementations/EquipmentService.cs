@@ -27,7 +27,7 @@ public class EquipmentService : IEquipmentService
     /// The result of the mapping is returned
     /// </summary>
     /// <param name="id">unique identifier</param>
-    /// <returns>data transfer object corresponding to the id</returns>
+    /// <returns><see cref="EquipmentDto"/> corresponding to the id</returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<EquipmentDto> GetEquipmentByIdAsync(Guid id)
     {
@@ -40,6 +40,20 @@ public class EquipmentService : IEquipmentService
         return dto;
     }
 
+    /// <summary>
+    /// Gets all equipment records from the data source.
+    /// </summary>
+    /// <returns>The <see cref="List&lt;T&gt;"/> of <see cref="EquipmentDto"/></returns>
+    public async Task<List<EquipmentDto>> GetAllEquipmentAsync()
+    {
+        // It is still not a bad idea for the entity of the type of equipment
+        var entities = await _unitOfWork.Equipment
+            .Get()
+            .AsNoTracking()
+            .ToListAsync();
+        return _mapper.Map<List<EquipmentDto>>(entities);
+    }
+
 
     /// <summary>
     /// Execute an entity search on the data source by IQueryStringParameters.SearchString. Execute a sort,
@@ -47,7 +61,7 @@ public class EquipmentService : IEquipmentService
     /// Retrieves *IQueryStringParameters.PageSize* of the following records. Execute mapping.
     /// </summary>
     /// <param name="parameters">object that implements IQueryStringParameters</param>
-    /// <returns>PagedList of data transfer objects</returns>
+    /// <returns><see cref="PagedList&lt;T&gt;"/> of <see cref="EquipmentDto"/></returns>
     public PagedList<EquipmentDto> GetEquipmentByQueryStringParameters(IQueryStringParameters parameters)
     {
         var query = _unitOfWork.Equipment

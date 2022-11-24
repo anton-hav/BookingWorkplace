@@ -8,25 +8,30 @@ using Serilog;
 using BookingWorkplace.Core.DataTransferObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookingWorkplace.Controllers
 {
+    [Authorize(Roles = "User, Admin")]
     public class WorkplaceController : Controller
     {
         private readonly IMapper _mapper;
         private readonly IWorkplaceService _workplaceService;
         private readonly IEquipmentService _equipmentService;
         private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
+        private readonly IUserManager _userManager;
 
         public WorkplaceController(IMapper mapper, 
             IWorkplaceService workplaceService, 
             IEquipmentService equipmentService, 
-            IEquipmentForWorkplaceService equipmentForWorkplaceService)
+            IEquipmentForWorkplaceService equipmentForWorkplaceService, 
+            IUserManager userManager)
         {
             _mapper = mapper;
             _workplaceService = workplaceService;
             _equipmentService = equipmentService;
             _equipmentForWorkplaceService = equipmentForWorkplaceService;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -37,10 +42,13 @@ namespace BookingWorkplace.Controllers
                 var workplaces = _workplaceService
                     .GetWorkplacesByQueryStringParameters(parameters);
 
+                var isUserAdmin = _userManager.IsAdmin();
+
                 var model = new ListOfWorkplacesModel()
                 {
                     Workplaces = workplaces,
                     SearchString = parameters,
+                    IsAdmin = isUserAdmin,
                 };
 
                 return View(model);
@@ -56,6 +64,7 @@ namespace BookingWorkplace.Controllers
         /// Shows the create page
         /// </summary>
         /// <returns>ViewResult for response</returns>
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -75,6 +84,7 @@ namespace BookingWorkplace.Controllers
         /// </summary>
         /// <param name="model">workplace model</param>
         /// <returns>redirect to /Workplace/Index if model is valid</returns>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create(WorkplaceModel model)
         {
@@ -109,6 +119,7 @@ namespace BookingWorkplace.Controllers
         /// </summary>
         /// <param name="id">unique identifier of the object to be changed</param>
         /// <returns>ViewResult for response</returns>
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -139,6 +150,7 @@ namespace BookingWorkplace.Controllers
         /// </summary>
         /// <param name="model">modified model</param>
         /// <returns>redirect to /Workplace/Index if model is valid</returns>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Edit(WorkplaceModel model)
         {
@@ -194,7 +206,11 @@ namespace BookingWorkplace.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Shows the details page
+        /// </summary>
+        /// <param name="id">unique identifier</param>
+        /// <returns>ViewResult for response</returns>
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {

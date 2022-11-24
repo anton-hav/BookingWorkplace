@@ -8,4 +8,5 @@ public class ListOfWorkplacesModel
 {
     public PagedList<WorkplaceDto> Workplaces { get; set; }
     public ISearchString SearchString { get; set; }
+    public bool IsAdmin { get; set; }
 }
