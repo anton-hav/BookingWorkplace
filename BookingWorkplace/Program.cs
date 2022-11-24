@@ -2,6 +2,7 @@ using Serilog;
 using Serilog.Events;
 using System.Reflection;
 using System.Text;
+using BookingReservation.Core.Abstractions;
 using BookingWorkplace.Business.ServiceImplementations;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Data.Abstractions;
@@ -44,6 +45,13 @@ namespace BookingWorkplace
                 });
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.Name = ".Reservation.Session";
+                options.Cookie.IsEssential = true;
+            });
 
             // Add business services
             builder.Services.AddScoped<IEquipmentService, EquipmentService>();
@@ -51,6 +59,7 @@ namespace BookingWorkplace
             builder.Services.AddScoped<IEquipmentForWorkplaceService, EquipmentForWorkplaceService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
+            builder.Services.AddScoped<IReservationService, ReservationService>();
 
             // Add custom identity services
             builder.Services.AddScoped<ISignInManager, SignInManager>();
@@ -85,6 +94,8 @@ namespace BookingWorkplace
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

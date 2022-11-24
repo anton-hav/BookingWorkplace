@@ -15,10 +15,7 @@ public class BookingWorkplaceDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<Reservation>()
-            .HasIndex(reservation => new
-            {
-                //todo: delete UserId from Index
-                reservation.UserId,
+            .HasIndex(reservation => new {
                 reservation.WorkplaceId,
                 reservation.TimeFrom,
                 reservation.TimeTo,

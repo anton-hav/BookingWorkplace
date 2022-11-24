@@ -1,0 +1,104 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@model PreBookingModel
+@{
+    ViewData["Title"] = "Add new reservation";
+}
+
+<h2>Add information about new reservation</h2>
+
+<div class="shadow p-3 mb-5 rounded">
+    <form asp-controller="Reservation" asp-action="PreBooking" method="get">
+        <dl class="row">
+            <dt class="col-sm-2">
+                <label for="time-from" class="form-label">Time from</label>
+            </dt>
+            <dd class="col-sm-10">
+                <input type="date" min="@DateTime.UtcNow.ToString("yyyy-MM-dd")" value="@Model.Filters.TimeFrom.ToString("yyyy-MM-dd")" asp-for="Filters.TimeFrom" class="form-control" id="time-from"/>
+                <span asp-validation-for="Filters.TimeFrom" class="text-danger"></span>
+            </dd>
+
+            <dt class="col-sm-2">
+                <label for="time-to" class="form-label">Time to</label>
+            </dt>
+            <dd class="col-sm-10">
+                <input type="date" min="@DateTime.UtcNow.ToString("yyyy-MM-dd")" value="@Model.Filters.TimeTo.ToString("yyyy-MM-dd")" asp-for="Filters.TimeTo" class="form-control" id="time-to"/>
+                <span asp-validation-for="Filters.TimeTo" class="text-danger"></span>
+            </dd>
+
+        </dl>
+
+        @{
+            if (Model.EquipmentList.Any())
+            {
+                <ul>
+                    @{
+                        for (var i = 0; i < Model.EquipmentList.Count(); i++)
+                        {
+                            //<input type="hidden" asp-for="@Model.EquipmentList[i].Value"/>
+                            //<input type="hidden" asp-for="@Model.EquipmentList[i].Text"/>
+                            //<input asp-for="EquipmentList[i].Selected"/>@Model.EquipmentList[i].Text
+                            <input type="checkbox" checked="@Model.EquipmentList[i].Selected" id="@i" name="Filters.Ids" value="@Model.EquipmentList[i].Value"/>
+
+                            @Model.EquipmentList[i].Text
+                        }
+                    }
+                </ul>
+            }
+        }
+        <input type="submit" class="btn btn-primary" value="Submit"/>
+    </form>
+</div>
+
+
+@{
+    if (Model.Workplaces.Any())
+    {
+        <div class="row m-3">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Floor</th>
+                        <th>Room</th>
+                        <th>Desk number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                @{
+                    var number = 1;
+                        foreach (var item in Model.Workplaces)
+                        {
+                            <tr class="align-middle">
+                                <td>@number</td>
+                                <td>@item.Floor</td>
+                                <td>@item.Room</td>
+                                <td>@item.DeskNumber</td>
+                                <td>
+                                    <form asp-controller="Reservation" asp-action="Create" method="post" class="d-flex">
+                                        <input name="id" value="@item.Id" hidden>
+                                        <button class="btn btn-outline-success" type="submit">Reserve</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            number++;
+                        };
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

@@ -1,0 +1,47 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@model ReservationModel
+@{
+    ViewData["Title"] = "Additional reservation options";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-controller="Reservation" asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <input asp-for="Id" class="form-control" type="hidden" value="@Guid.Empty" />
+    </div>
+    <div class="mb-3">
+        <input asp-for="WorkplaceId" class="form-control" type="hidden"/>
+    </div>
+    
+    <div class="container">
+        <dl class="row">
+            <dt class="col-sm-2">Time from</dt>
+            <dd class="col-sm-10">@Model.TimeFrom.ToString("D")</dd>
+
+            <dt class="col-sm-2">Time to</dt>
+            <dd class="col-sm-10">@Model.TimeTo.ToString("D")</dd>
+            
+            <dt class="col-sm-2">Floor</dt>
+            <dd class="col-sm-10">@Model.Workplace.Floor</dd>
+            
+            <dt class="col-sm-2">Room</dt>
+            <dd class="col-sm-10">@Model.Workplace.Room</dd>
+            
+            <dt class="col-sm-2">Desk number</dt>
+            <dd class="col-sm-10">@Model.Workplace.DeskNumber</dd>
+        </dl>
+    </div>
+    
+    <input type="submit" class="btn btn-primary" value="Submit" />
+</form>
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

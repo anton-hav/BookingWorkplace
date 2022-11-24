@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
@@ -94,6 +95,30 @@ public class WorkplaceService : IWorkplaceService
         var list = PagedList<WorkplaceDto>.ToPagedList(mappedQuery, parameters);
 
         return list;
+    }
+
+    public List<WorkplaceDto> GetWorkplacesByFilterParameters(IFilterParameters parameters)
+    {
+        //var dto = _unitOfWork.Workplaces
+        //    .Get()
+        //    .Include(w => w.EquipmentForWorkplaces)
+        //    .Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(Guid.Parse("A94EBB66-CEE0-4EDE-B46A-EADEBFC589B0"))))
+        //    .AsNoTracking()
+        //    .Select(w => _mapper.Map<WorkplaceDto>(w))
+        //    .ToList();
+
+        var query = _unitOfWork.Workplaces
+            .Get();
+            //.Include(w => w.EquipmentForWorkplaces);
+
+        foreach (var param in parameters.Ids)
+        {
+            query = query.Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(param)));
+        }
+
+        var dto = query.AsNoTracking().Select(w => _mapper.Map<WorkplaceDto>(w)).ToList();
+
+        return dto;
     }
 
     /// <summary>
