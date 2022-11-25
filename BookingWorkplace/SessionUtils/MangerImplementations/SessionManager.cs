@@ -46,7 +46,7 @@ public class SessionManager : ISessionManager
     /// Gets a reservation session for the current user.
     /// </summary>
     /// <returns><see cref="ReservationSession"/></returns>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<ReservationSession> GetSessionAsync()
     {
         var sessionKey = await GetSessionKeyAsync();
@@ -69,9 +69,9 @@ public class SessionManager : ISessionManager
     }
 
     /// <summary>
-    /// Remove
+    /// Remove the current reservation session
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The Task</returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task RemoveSessionAsync()
     {

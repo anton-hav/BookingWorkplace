@@ -21,6 +21,8 @@ public class PreBookingModel //: IValidatableObject
 
     public List<WorkplaceDto>? Workplaces { get; set; }
 
+    public List<WorkplaceDto>? UnderstaffedWorkplaces {get; set; }
+
     //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     //{
     //    var result = TimeTo < TimeFrom || TimeFrom < DateTime.Today;

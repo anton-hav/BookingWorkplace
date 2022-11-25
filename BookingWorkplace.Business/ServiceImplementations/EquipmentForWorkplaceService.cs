@@ -4,6 +4,7 @@ using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Data.Abstractions;
 using BookingWorkplace.DataBase.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookingWorkplace.Business.ServiceImplementations;
 
@@ -22,7 +23,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     /// <summary>
     /// Gets the object that corresponding Id  from the data source and returns as a response.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="id">unique identifier</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByIdAsync(Guid id)
@@ -49,6 +50,31 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     public async Task<bool> IsEquipmentForWorkplaceExistAsync(string typeName)
     {
         throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Checks the possibility of forming a pool of necessary equipment to satisfy the filter list.
+    /// </summary>
+    /// <param name="parameters">object that implements <see cref="IFilterParameters"/>.</param>
+    /// <returns>A boolean</returns>
+    public async Task<bool> IsPossibleToFindNecessaryEquipmentToMoveAsync(IFilterParameters parameters)
+    {
+        var result = true;
+
+        foreach (var id in parameters.Ids)
+        {
+            var entity = await _unitOfWork.EquipmentForWorkplaces
+                .Get()
+                .Where(eFW =>
+                    !eFW.Workplace.Reservations
+                        .Any(r => r.TimeTo >= parameters.TimeFrom))
+                .Where(eFW => eFW.EquipmentId.Equals(id))
+                .FirstOrDefaultAsync();
+
+            result = entity != null;
+        }
+        
+        return result;
     }
 
     /// <summary>

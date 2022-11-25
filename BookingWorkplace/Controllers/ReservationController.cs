@@ -28,15 +28,15 @@ namespace BookingWorkplace.Controllers
         private readonly IEquipmentService _equipmentService;
         private readonly IWorkplaceService _workplaceService;
         private readonly ISessionManager _sessionManager;
-
-        private const int SessionKeyOffset = 5;
+        private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
 
         public ReservationController(IMapper mapper,
             IUserManager userManager,
             IReservationService reservationService,
             IEquipmentService equipmentService,
             IWorkplaceService workplaceService, 
-            ISessionManager sessionManager)
+            ISessionManager sessionManager, 
+            IEquipmentForWorkplaceService equipmentForWorkplaceService)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -44,6 +44,7 @@ namespace BookingWorkplace.Controllers
             _equipmentService = equipmentService;
             _workplaceService = workplaceService;
             _sessionManager = sessionManager;
+            _equipmentForWorkplaceService = equipmentForWorkplaceService;
         }
 
         public IActionResult Index()
@@ -103,14 +104,31 @@ namespace BookingWorkplace.Controllers
                 // gets the list of relevant workplaces
                 var workplaces = _workplaceService.GetWorkplacesByFilterParameters(filters);
 
-
                 // prepares model
                 var model = new PreBookingModel
                 {
                     Filters = filters,
                     EquipmentList = equipmentSelectList,
-                    Workplaces = workplaces
+                    Workplaces = workplaces,
+                    UnderstaffedWorkplaces = new List<WorkplaceDto>()
                 };
+
+                // gets the list of understaffed workplaces
+                var understaffedWorkplaces = await _workplaceService
+                    .GetPossibleWorkplacesByFilterParameters(filters, workplaces);
+
+                // checks whether it is possible to form a pool of necessary equipment
+                if (understaffedWorkplaces.Any())
+                {
+                    var isEquipmentPoolPossible = await _equipmentForWorkplaceService
+                        .IsPossibleToFindNecessaryEquipmentToMoveAsync(filters);
+
+                    if (isEquipmentPoolPossible)
+                    {
+                        model.UnderstaffedWorkplaces.AddRange(understaffedWorkplaces);
+                    }
+                }
+
                 return View(model);
             }
             catch (ArgumentException ex)

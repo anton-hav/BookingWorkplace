@@ -9,6 +9,8 @@ public interface IWorkplaceService
     Task<WorkplaceDto> GetWorkplaceWithEquipmentByIdAsync(Guid id);
     PagedList<WorkplaceDto> GetWorkplacesByQueryStringParameters(IQueryStringParameters parameters);
     List<WorkplaceDto> GetWorkplacesByFilterParameters(IFilterParameters parameters);
+    Task<List<WorkplaceDto>> GetPossibleWorkplacesByFilterParameters(IFilterParameters parameters,
+        List<WorkplaceDto> exclusionList);
     Task<bool> IsWorkplaceExistAsync(string roomNumber, string floorNumber, string deskNumber);
 
     //CREATE

@@ -13,12 +13,15 @@ public class WorkplaceService : IWorkplaceService
 {
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
 
     public WorkplaceService(IMapper mapper, 
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork, 
+        IEquipmentForWorkplaceService equipmentForWorkplaceService)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _equipmentForWorkplaceService = equipmentForWorkplaceService;
     }
 
     /// <summary>
@@ -131,6 +134,39 @@ public class WorkplaceService : IWorkplaceService
     }
 
     /// <summary>
+    /// Gets the list of <see cref="WorkplaceDto"/> that only meet the requirements of the reservation time parameters.
+    /// Excludes from the list the <see cref="WorkplaceDto"/> contained in <see cref="exclusionList"/>
+    /// </summary>
+    /// <param name="parameters">object that implements <see cref="IFilterParameters"/>.</param>
+    /// <param name="exclusionList"></param>
+    /// <returns></returns>
+    public async Task<List<WorkplaceDto>> GetPossibleWorkplacesByFilterParameters(IFilterParameters parameters,
+        List<WorkplaceDto> exclusionList)
+    {
+        var query = _unitOfWork.Workplaces.Get();
+
+        // Skip relevant workplaces
+        foreach (var workplace in exclusionList)
+        {
+            query = query.Where(w => !w.Id.Equals(workplace.Id));
+        }
+
+        // Find free workplaces for filter parameters
+        query = query.Where(w =>
+            !w.Reservations
+                .Any(res => (parameters.TimeFrom <= res.TimeFrom
+                             && res.TimeFrom <= parameters.TimeTo)
+                            || (parameters.TimeFrom <= res.TimeTo
+                                && res.TimeTo <= parameters.TimeTo)
+                            || (parameters.TimeFrom > res.TimeFrom
+                                && parameters.TimeTo < res.TimeTo)));
+
+        var freeWorkplaces = await query.AsNoTracking().ToListAsync();
+        
+        return _mapper.Map<List<WorkplaceDto>>(freeWorkplaces);
+    }
+
+    /// <summary>
     /// Checks for existing a record in the data source that matches the parameters.
     /// </summary>
     /// <param name="roomNumber">room number of the current workplace as a string</param>
@@ -151,7 +187,7 @@ public class WorkplaceService : IWorkplaceService
     /// <summary>
     /// Create a new record in the data source.
     /// </summary>
-    /// <param name="dto">data transfer object</param>
+    /// <param name="dto"><see cref="WorkplaceDto"/></param>
     /// <returns>the number of successfully created records in the data source</returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<int> CreateWorkplaceAsync(WorkplaceDto dto)

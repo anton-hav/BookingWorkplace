@@ -8,8 +8,8 @@ public interface IEquipmentForWorkplaceService
     Task<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByIdAsync(Guid id);
     PagedList<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByQueryStringParameters(IQueryStringParameters parameters);
     Task<List<EquipmentForWorkplaceDto>> GetAvailableEquipmentForWorkplaceByWorkplaceId(Guid id);
-
     Task<bool> IsEquipmentForWorkplaceExistAsync(string typeName);
+    Task<bool> IsPossibleToFindNecessaryEquipmentToMoveAsync(IFilterParameters parameters);
 
     //CREATE
     Task<int> CreateEquipmentForWorkplaceAsync(EquipmentForWorkplaceDto dto);
