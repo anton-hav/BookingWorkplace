@@ -69,7 +69,8 @@ namespace BookingWorkplace.Controllers
                         UserId = userId,
                         WorkplaceId = Guid.Empty,
                         TimeFrom = filters.TimeFrom.Equals(default) ? DateTime.Today : filters.TimeFrom,
-                        TimeTo = filters.TimeTo.Equals(default) ? DateTime.Today : filters.TimeTo
+                        TimeTo = filters.TimeTo.Equals(default) ? DateTime.Today : filters.TimeTo,
+                        EquipmentIds = filters.Ids.IsNullOrEmpty() ? new List<Guid>() : filters.Ids
                     };
 
                     await _sessionManager.SetSessionAsync(reservationSession);
@@ -88,7 +89,12 @@ namespace BookingWorkplace.Controllers
                 else
                     session.TimeTo = filters.TimeTo;
 
-                if (filters.Ids.IsNullOrEmpty()) filters.Ids = new List<Guid>();
+                if (filters.Ids.IsNullOrEmpty())
+                {
+                    filters.Ids = new List<Guid>();
+                }
+
+                session.EquipmentIds = filters.Ids;
 
                 await _sessionManager.SetSessionAsync(session);
 
@@ -171,6 +177,20 @@ namespace BookingWorkplace.Controllers
 
                 if (!isValid)
                     throw new ArgumentException("A reservation with current parameters does not valid.");
+
+
+                var filters = new FilterParameters()
+                {
+                    Ids = session.EquipmentIds,
+                    TimeFrom = session.TimeFrom,
+                    TimeTo = session.TimeTo,
+                };
+
+                var relocatedEquipment = await _equipmentForWorkplaceService
+                    .GetMovableEquipmentForWorkplaceAsync(filters);
+
+                await _equipmentForWorkplaceService
+                    .PrepareEquipmentForRelocationToWorkplaceAsync(relocatedEquipment, id);
 
                 var result = await _reservationService.CreateReservationAsync(dto);
                 if (result.Equals(1))

@@ -77,6 +77,29 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
         return result;
     }
 
+    public async Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters)
+    {
+        var list = new List<EquipmentForWorkplaceDto>();
+        foreach (var id in parameters.Ids)
+        {
+            var entity = await _unitOfWork.EquipmentForWorkplaces
+                .Get()
+                .Where(eFW =>
+                    !eFW.Workplace.Reservations
+                        .Any(r => r.TimeTo >= parameters.TimeFrom))
+                .Where(eFW => eFW.EquipmentId.Equals(id))
+                .FirstOrDefaultAsync();
+
+            if (entity != null)
+            {
+                var dto = _mapper.Map<EquipmentForWorkplaceDto>(entity);
+                list.Add(dto);
+            }
+        }
+
+        return list;
+    }
+
     /// <summary>
     /// Creates a new record in the data source
     /// </summary>
@@ -98,6 +121,35 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     public async Task<int> UpdateAsync(Guid id, EquipmentForWorkplaceDto equipment)
     {
         throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Prepares records for patching.
+    /// </summary>
+    /// <remarks>There is no change in the data source.
+    /// Changes will be committed at the moment of calling save changes for DBContext</remarks>
+    /// <param name="equipmentIds">List of relocation equipment</param>
+    /// <param name="workplaceId">workplace unique identifier as <see cref="Guid"/></param>
+    /// <returns>The Task</returns>
+    public async Task PrepareEquipmentForRelocationToWorkplaceAsync(List<EquipmentForWorkplaceDto> equipment, Guid workplaceId)
+    {
+        foreach (var dto in equipment)
+        {
+            var sourceDto = await GetEquipmentForWorkplaceByIdAsync(dto.Id);
+
+            var patchList = new List<PatchModel>();
+
+            if (!workplaceId.Equals(sourceDto.WorkplaceId))
+            {
+                patchList.Add(new PatchModel()
+                {
+                    PropertyName = nameof(sourceDto.WorkplaceId),
+                    PropertyValue = workplaceId
+                });
+            }
+
+            await _unitOfWork.EquipmentForWorkplaces.PatchAsync(dto.Id, patchList);
+        }
     }
 
     /// <summary>

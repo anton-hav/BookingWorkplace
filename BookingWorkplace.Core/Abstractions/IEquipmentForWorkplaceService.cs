@@ -10,12 +10,14 @@ public interface IEquipmentForWorkplaceService
     Task<List<EquipmentForWorkplaceDto>> GetAvailableEquipmentForWorkplaceByWorkplaceId(Guid id);
     Task<bool> IsEquipmentForWorkplaceExistAsync(string typeName);
     Task<bool> IsPossibleToFindNecessaryEquipmentToMoveAsync(IFilterParameters parameters);
+    Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters);
 
     //CREATE
     Task<int> CreateEquipmentForWorkplaceAsync(EquipmentForWorkplaceDto dto);
 
     //UPDATE
     Task<int> UpdateAsync(Guid id, EquipmentForWorkplaceDto equipment);
+    Task PrepareEquipmentForRelocationToWorkplaceAsync(List<EquipmentForWorkplaceDto> equipment, Guid workplaceId);
 
     //REMOVE
     Task<int> DeleteAsync(Guid id);
