@@ -11,6 +11,8 @@ using BookingWorkplace.Data.Repositories;
 using BookingWorkplace.DataBase;
 using BookingWorkplace.DataBase.Entities;
 using BookingWorkplace.IdentityManagers;
+using BookingWorkplace.SessionUtils.Abstractions;
+using BookingWorkplace.SessionUtils.MangerImplementations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -65,6 +67,9 @@ namespace BookingWorkplace
             builder.Services.AddScoped<ISignInManager, SignInManager>();
             builder.Services.AddScoped<IUserManager, UserManager>();
 
+            // Add session services
+            builder.Services.AddScoped<ISessionManager, SessionManager>();
+
             // Add repositories
             builder.Services.AddScoped<IRepository<User>, Repository<User>>();
             builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
@@ -74,6 +79,8 @@ namespace BookingWorkplace
             builder.Services.AddScoped<IRepository<Workplace>, Repository<Workplace>>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            
 
             builder.Configuration.AddJsonFile("secrets.json");
 

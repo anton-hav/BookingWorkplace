@@ -10,4 +10,5 @@ public interface ISessionManager
     Task SetSessionAsync(ReservationSession session);
 
     // DELETE
+    Task RemoveSessionAsync();
 }

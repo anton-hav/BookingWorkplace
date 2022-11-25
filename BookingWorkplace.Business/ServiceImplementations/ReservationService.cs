@@ -5,6 +5,7 @@ using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Data.Abstractions;
 using BookingWorkplace.DataBase.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookingWorkplace.Business.ServiceImplementations;
 
@@ -30,9 +31,45 @@ public class ReservationService : IReservationService
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Checks for existing a record in the data source that matches the parameters.
+    /// </summary>
+    /// <param name="workplaceId">workplace unique identifier as a <see cref="Guid"/></param>
+    /// <param name="timeFrom">a check in time as a <see cref="DateTime"/></param>
+    /// <param name="timeTo">a check out time as a <see cref="DateTime"/></param>
+    /// <returns>A boolean (true if the record exists, or false if it does not exist)</returns>
     public async Task<bool> IsReservationExistAsync(Guid workplaceId, DateTime timeFrom, DateTime timeTo)
     {
-        throw new NotImplementedException();
+        var entity = await _unitOfWork.Reservations
+            .Get()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(entity =>
+                entity.WorkplaceId.Equals(workplaceId)
+                && entity.TimeTo.Equals(timeTo)
+                && entity.TimeFrom.Equals(timeFrom));
+
+        return entity != null;
+    }
+
+    /// <summary>
+    /// Checks for existing any record in the data source with a time interval overlapping the parameters.
+    /// </summary>
+    /// <param name="userId">a user unique identifier as a <see cref="Guid"/></param>
+    /// <param name="timeFrom">a check in time as a <see cref="DateTime"/></param>
+    /// <param name="timeTo">a check out time as a <see cref="DateTime"/></param>
+    /// <returns>A boolean (true if the record exists, or false if it does not exist)</returns>
+    public async Task<bool> IsReservationForUserExistAsync(Guid userId, DateTime timeFrom, DateTime timeTo)
+    {
+        var entity = await _unitOfWork.Reservations
+            .Get()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(entity =>
+                entity.UserId.Equals(userId)
+                && ((timeFrom <= entity.TimeFrom && entity.TimeFrom <= timeTo) 
+                    || (timeFrom <= entity.TimeTo && entity.TimeTo <= timeTo) 
+                    || (timeFrom > entity.TimeFrom && entity.TimeFrom > timeTo)));
+
+        return entity != null;
     }
 
     /// <summary>

@@ -27,7 +27,7 @@
   <ItemGroup>
     <Folder Include="Helper\" />
     <Folder Include="IdentityManagers\" />
-    <Folder Include="SessionUtils\" />
+    <Folder Include="SessionUtils\MangerImplementations\" />
   </ItemGroup>
 
   <ItemGroup>

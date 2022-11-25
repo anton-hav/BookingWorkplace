@@ -10,12 +10,10 @@ public class SessionManager : ISessionManager
     private readonly IUserManager _userManager;
     private const int SessionKeyOffset = 5;
 
-    public SessionManager(IHttpContextAccessor contextAccessor, 
-        HttpContext context, 
+    public SessionManager(IHttpContextAccessor contextAccessor,
         IUserManager userManager)
     {
         _contextAccessor = contextAccessor;
-        _context = context;
         _userManager = userManager;
     }
 
@@ -68,6 +66,21 @@ public class SessionManager : ISessionManager
     {
         var sessionKey = await GetSessionKeyAsync();
         Context.Session.Set(sessionKey, session);
+    }
+
+    /// <summary>
+    /// Remove
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task RemoveSessionAsync()
+    {
+        if (!Context.Session.IsAvailable)
+            throw new InvalidOperationException(
+                "Session not found. Possibly the lifetime of the session has been exceeded.");
+
+        var sessionKey = await GetSessionKeyAsync();
+        Context.Session.Remove(sessionKey);
     }
 
     /// <summary>

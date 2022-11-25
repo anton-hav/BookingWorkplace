@@ -111,6 +111,15 @@ public class WorkplaceService : IWorkplaceService
             .Get();
             //.Include(w => w.EquipmentForWorkplaces);
 
+            query = query.Where(w =>
+                !w.Reservations
+                    .Any(res => (parameters.TimeFrom <= res.TimeFrom
+                                 && res.TimeFrom <= parameters.TimeTo)
+                                || (parameters.TimeFrom <= res.TimeTo
+                                    && res.TimeTo <= parameters.TimeTo)
+                                || (parameters.TimeFrom > res.TimeFrom
+                                    && parameters.TimeTo < res.TimeTo)));
+
         foreach (var param in parameters.Ids)
         {
             query = query.Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(param)));

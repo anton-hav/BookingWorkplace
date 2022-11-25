@@ -6,9 +6,11 @@ using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.DataBase.Entities;
 using BookingWorkplace.Models;
 using BookingWorkplace.SessionUtils;
+using BookingWorkplace.SessionUtils.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
@@ -25,6 +27,7 @@ namespace BookingWorkplace.Controllers
         private readonly IReservationService _reservationService;
         private readonly IEquipmentService _equipmentService;
         private readonly IWorkplaceService _workplaceService;
+        private readonly ISessionManager _sessionManager;
 
         private const int SessionKeyOffset = 5;
 
@@ -32,13 +35,15 @@ namespace BookingWorkplace.Controllers
             IUserManager userManager,
             IReservationService reservationService,
             IEquipmentService equipmentService,
-            IWorkplaceService workplaceService)
+            IWorkplaceService workplaceService, 
+            ISessionManager sessionManager)
         {
             _mapper = mapper;
             _userManager = userManager;
             _reservationService = reservationService;
             _equipmentService = equipmentService;
             _workplaceService = workplaceService;
+            _sessionManager = sessionManager;
         }
 
         public IActionResult Index()
@@ -52,39 +57,39 @@ namespace BookingWorkplace.Controllers
             try
             {
                 // checks and initiates new session
-                var userId = await _userManager.GetUserIdAsync();
-                var sessionKey = userId.ToString("N").Substring(SessionKeyOffset);
-                var isSucceed =
-                    HttpContext.Session.TryGetValue<ReservationSession>(sessionKey, out var reservationSession);
+                var isExist = await _sessionManager.IsSessionExistAsync();
 
-                if (!isSucceed)
+                if (!isExist)
                 {
-                    reservationSession = new ReservationSession
+                    var userId = await _userManager.GetUserIdAsync();
+                    var reservationSession = new ReservationSession
                     {
                         ReservationId = Guid.NewGuid(),
                         UserId = userId,
                         WorkplaceId = Guid.Empty,
-                        TimeFrom = filters.TimeFrom.Equals(DateTime.MinValue) ? DateTime.UtcNow : filters.TimeFrom,
-                        TimeTo = filters.TimeTo.Equals(default) ? DateTime.UtcNow : filters.TimeTo
+                        TimeFrom = filters.TimeFrom.Equals(default) ? DateTime.Today : filters.TimeFrom,
+                        TimeTo = filters.TimeTo.Equals(default) ? DateTime.Today : filters.TimeTo
                     };
 
-                    HttpContext.Session.Set(sessionKey, reservationSession);
+                    await _sessionManager.SetSessionAsync(reservationSession);
                 }
 
                 // checks and initiates value for date fields of filters
+                var session = await _sessionManager.GetSessionAsync();
+
                 if (filters.TimeFrom.Equals(default))
-                    filters.TimeFrom = reservationSession.TimeFrom;
+                    filters.TimeFrom = session.TimeFrom;
                 else
-                    reservationSession.TimeFrom = filters.TimeFrom;
+                    session.TimeFrom = filters.TimeFrom;
 
                 if (filters.TimeTo.Equals(default))
-                    filters.TimeTo = reservationSession.TimeTo;
+                    filters.TimeTo = session.TimeTo;
                 else
-                    reservationSession.TimeTo = filters.TimeTo;
+                    session.TimeTo = filters.TimeTo;
 
                 if (filters.Ids.IsNullOrEmpty()) filters.Ids = new List<Guid>();
 
-                HttpContext.Session.Set(sessionKey, reservationSession);
+                await _sessionManager.SetSessionAsync(session);
 
                 // generates the list of select items for the filter bar
                 var equipmentList = await _equipmentService.GetAllEquipmentAsync();
@@ -127,25 +132,31 @@ namespace BookingWorkplace.Controllers
             {
                 if (id.Equals(Guid.Empty))
                     throw new ArgumentException(nameof(id));
-
-                var userId = await _userManager.GetUserIdAsync();
-                var sessionKey = userId.ToString("N").Substring(SessionKeyOffset);
-                var isSucceed =
-                    HttpContext.Session.TryGetValue<ReservationSession>(sessionKey, out var reservationSession);
-
-                if (!isSucceed)
+                
+                var isExist = await _sessionManager.IsSessionExistAsync();
+                if (!isExist)
                     throw new ArgumentException("Session not found. Possibly the lifetime of the session has been exceeded.");
+
+                var session = await _sessionManager.GetSessionAsync();
+                var userId = await _userManager.GetUserIdAsync();
 
                 var dto = new ReservationDto()
                 {
-                    Id = reservationSession.ReservationId,
+                    Id = session.ReservationId,
                     UserId = userId,
                     WorkplaceId = id,
-                    TimeFrom = reservationSession.TimeFrom,
-                    TimeTo = reservationSession.TimeTo,
+                    TimeFrom = session.TimeFrom,
+                    TimeTo = session.TimeTo,
                 };
 
+                var isValid = await IsReservationValid(dto.WorkplaceId, dto.TimeFrom, dto.TimeTo);
+
+                if (!isValid)
+                    throw new ArgumentException("A reservation with current parameters does not valid.");
+
                 var result = await _reservationService.CreateReservationAsync(dto);
+                if (result.Equals(1))
+                    await _sessionManager.RemoveSessionAsync();
 
                 return RedirectToAction("Index", "Reservation"); ;
             }
@@ -159,6 +170,47 @@ namespace BookingWorkplace.Controllers
                 Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
                 return StatusCode(500);
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateReservation(Guid workplaceId, DateTime timeFrom, DateTime timeTo)
+        {
+            try
+            {
+                var isValid = await IsReservationValid(workplaceId, timeFrom, timeTo);
+
+                return Ok(isValid);
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Warning($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Checks for existing reservations with the same parameters
+        /// or reservations for the current user with a time interval overlapping the parameters. 
+        /// </summary>
+        /// <param name="workplaceId">a workplace unique identifier as a <see cref="Guid"/></param>
+        /// <param name="timeFrom">a check in time as a <see cref="DateTime"/></param>
+        /// <param name="timeTo">a check out time as a <see cref="DateTime"/></param>
+        /// <returns>A boolean (true if the reservation does not exist, or false if it exists)</returns>
+        private async Task<bool> IsReservationValid(Guid workplaceId, DateTime timeFrom, DateTime timeTo)
+        {
+            var isReservationExist = await _reservationService.IsReservationExistAsync(workplaceId, timeFrom, timeTo);
+
+            var userId = await _userManager.GetUserIdAsync();
+
+            var isReservationForUserExist =
+                await _reservationService.IsReservationForUserExistAsync(userId, timeFrom, timeTo);
+
+            return !isReservationExist && !isReservationForUserExist;
         }
     }
 }
