@@ -9,6 +9,7 @@ public interface IReservationService
     //READ
     Task<ReservationDto> GetReservationByIdAsync(Guid id);
     PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters);
+    PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters, Guid userId);
     Task<bool> IsReservationExistAsync(Guid workplaceId, DateTime timeFrom, DateTime timeTo);
     Task<bool> IsReservationForUserExistAsync(Guid userId, DateTime timeFrom, DateTime timeTo);
 
@@ -16,8 +17,7 @@ public interface IReservationService
     Task<int> CreateReservationAsync(ReservationDto dto);
 
     //UPDATE
-    Task<int> UpdateAsync(Guid id, ReservationDto dto);
 
     //REMOVE
-    Task<int> DeleteAsync(Guid id);
+    Task<int> DeleteAsync(ReservationDto dto);
 }

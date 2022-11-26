@@ -47,11 +47,37 @@ namespace BookingWorkplace.Controllers
             _equipmentForWorkplaceService = equipmentForWorkplaceService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(QueryStringParameters parameters)
         {
-            return Ok();
+            try
+            {
+                var isUserAdmin = _userManager.IsAdmin();
+
+                var userId = await _userManager.GetUserIdAsync();
+
+                var reservations = isUserAdmin
+                    ? _reservationService
+                        .GetReservationsByQueryStringParameters(parameters)
+                    : _reservationService
+                        .GetReservationsByQueryStringParameters(parameters, userId);
+
+                var model = new ListOfReservationsModel()
+                {
+                    Reservations = reservations,
+                    SearchString = parameters,
+                    IsAdmin = isUserAdmin,
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
         }
 
+        [Authorize(Roles = "User")]
         [HttpGet]
         public async Task<IActionResult> PreBooking([FromQuery] FilterParameters filters)
         {
@@ -149,6 +175,7 @@ namespace BookingWorkplace.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> Create(Guid id)
         {
@@ -230,6 +257,37 @@ namespace BookingWorkplace.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                if (id.Equals(Guid.Empty))
+                    throw new ArgumentException(nameof(id));
+
+                var dto = await _reservationService.GetReservationByIdAsync(id);
+
+                var userId = await _userManager.GetUserIdAsync();
+
+                if (dto.UserId.Equals(userId))
+                    await _reservationService.DeleteAsync(dto);
+
+                return RedirectToAction("Index", "Reservation");
+
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Warning($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
+        }
+
 
         /// <summary>
         /// Checks for existing reservations with the same parameters

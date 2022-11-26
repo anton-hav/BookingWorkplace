@@ -70,7 +70,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
                         .Any(r => r.TimeTo >= parameters.TimeFrom))
                 .Where(eFW => eFW.EquipmentId.Equals(id))
                 .FirstOrDefaultAsync();
-
+            
             result = entity != null;
         }
         

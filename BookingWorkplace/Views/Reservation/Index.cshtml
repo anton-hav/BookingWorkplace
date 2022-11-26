@@ -1,0 +1,147 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using BookingWorkplace.Business
+@model ListOfReservationsModel
+
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+
+
+
+@{
+    var prevDisabled = !Model.Reservations.HasPrevious ? "disabled" : "";
+    var nextDisabled = !Model.Reservations.HasNext ? "disabled" : "";
+    var paginationParameters = new PaginationParameters()
+            {
+                PageSize = Model.Reservations.PageSize,
+                CurrentPage = Model.Reservations.CurrentPage
+            };
+}
+
+<nav class="navbar" aria-label="page navigation">
+    <div class="container-fluid">
+        @{
+            if (!Model.IsAdmin)
+            {
+                <a type="button" class="btn btn-primary" asp-controller="Reservation" asp-action="PreBooking">Create new</a>
+            }
+        }
+        <ul class="pagination justify-content-center">
+            <li class="page-item @prevDisabled">
+                <a class="page-link"
+                   asp-controller="Workplace"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Reservations.PageSize, CurrentPage = Model.Reservations.CurrentPage - 1 }).ToDictionary();">
+                    Previous
+                </a>
+            </li>
+            @{
+                for (var i = 1; i <= Model.Reservations.TotalPages; i++)
+                {
+                    if (i == Model.Reservations.CurrentPage)
+                    {
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                   asp-controller="Workplace"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Reservations.PageSize, CurrentPage = i }).ToDictionary();">
+                                @i
+                            </a>
+                        </li>
+                    }
+                }
+            }
+            <li class="page-item @nextDisabled">
+                <a class="page-link"
+                   asp-controller="Workplace"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Reservations.PageSize, CurrentPage = Model.Reservations.CurrentPage + 1 }).ToDictionary();">
+                    Next
+                </a>
+            </li>
+        </ul>
+        <partial name="_SearchBar" model="Model.SearchString" />
+
+    </div>
+</nav>
+
+
+@{
+    if (Model.Reservations.Any())
+    {
+        <div class="row m-3">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Time from</th>
+                        <th>Time to</th>
+                        <th>Place</th>
+                        @{
+                            if (Model.IsAdmin)
+                            {
+                                <th>User</th>
+                            }
+                            else
+                            {
+                                <th>Actions</th>
+                            }
+                        }
+                        
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    @{
+                        var number = (Model.Reservations.CurrentPage - 1) * Model.Reservations.PageSize + 1;
+                        foreach (var item in Model.Reservations)
+                        {
+                            <tr class="align-middle">
+                                <td>@number</td>
+                                <td>@item.TimeFrom.ToString("D")</td>
+                                <td>@item.TimeTo.ToString("D")</td>
+                                <td>Floor: @item.Workplace.Floor, Room: @item.Workplace.Room, Workplace: @item.Workplace.DeskNumber</td>
+                                @{
+                                    if (Model.IsAdmin)
+                                    {
+                                        <td>@item.User.Email</td>
+                                    }
+                                    else
+                                    {
+                                        
+                                        <td>
+                                            <div class="btn-group" role="group" aria-label="Actions">
+                                                @{
+                                                    if (item.TimeFrom > DateTime.Today)
+                                                    {
+                                                        <a type="button" class="btn btn-link" asp-controller="Reservation" asp-action="Delete" asp-route-id="@item.Id">Cancel</a>
+                                                    }
+                                                }
+
+                                                
+                                            </div>
+                                        </td>
+                                        
+                                    }
+                                }
+
+                                
+                            </tr>
+                            number++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

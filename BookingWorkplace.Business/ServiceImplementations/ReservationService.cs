@@ -21,14 +21,79 @@ public class ReservationService : IReservationService
         _unitOfWork = unitOfWork;
     }
 
+    /// <summary>
+    /// Gets a reservation by unique identifier from the data source.
+    /// </summary>
+    /// <param name="id">unique identifier as a <see cref="Guid"/></param>
+    /// <returns><see cref="ReservationDto"/></returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<ReservationDto> GetReservationByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var entity = await _unitOfWork.Reservations.GetByIdAsync(id);
+
+        if (entity != null)
+        {
+            var dto = _mapper.Map<ReservationDto>(entity);
+            return dto;
+        }
+
+        throw new ArgumentException(nameof(id));
     }
 
+    /// <summary>
+    /// Execute records search on the data source by <see cref="IQueryStringParameters"/>. Execute a sort,
+    /// and skips the number equal to the product of IQueryStringParameters.CurrentPage and IQueryStringParameters.PageSize.
+    /// Retrieves *IQueryStringParameters.PageSize* of the following records.
+    /// </summary>
+    /// <param name="parameters">object that implements <see cref="IQueryStringParameters"/></param>
+    /// <returns><see cref="PagedList{T}"/> where T is <see cref="ReservationDto"/></returns>
     public PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters)
     {
-        throw new NotImplementedException();
+        return GetReservationsByQueryStringParameters(parameters, Guid.Empty);
+    }
+
+    /// <summary>
+    /// Execute records search on the data source by <see cref="IQueryStringParameters"/>. Execute a sort,
+    /// and skips the number equal to the product of IQueryStringParameters.CurrentPage and IQueryStringParameters.PageSize.
+    /// Retrieves *IQueryStringParameters.PageSize* of the following records.
+    /// </summary>
+    /// <param name="parameters">object that implements <see cref="IQueryStringParameters"/></param>
+    /// <param name="userId">unique identifier of the current user</param>
+    /// <returns><see cref="PagedList{T}"/> where T is <see cref="ReservationDto"/></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters, Guid userId)
+    {
+        var query = _unitOfWork.Reservations
+            .Get();
+
+        if (!userId.Equals(Guid.Empty))
+        {
+            query = query.Where(entity => entity.UserId.Equals(userId));
+        }
+
+        if (!String.IsNullOrEmpty(parameters.SearchString))
+            query = query.Where(entity => entity.Workplace.Room.Contains(parameters.SearchString)
+                                           || entity.Workplace.Floor.Contains(parameters.SearchString)
+                                           || entity.Workplace.DeskNumber.Contains(parameters.SearchString)
+                                           || entity.User.Email.Contains(parameters.SearchString));
+
+        var mappedQuery = query
+            .Include(entity => entity.Workplace)
+            .Include(entity => entity.User)
+            .AsNoTracking()
+            .OrderByDescending(entity => entity.TimeFrom)
+            .ThenByDescending(entity => entity.TimeTo)
+            .ThenBy(entity => entity.Workplace.Floor)
+            .ThenBy(entity => entity.Workplace.Room)
+            .Select(entity => _mapper.Map<ReservationDto>(entity));
+
+        if (mappedQuery == null)
+            throw new ArgumentException("Failed to find records in the database that match the specified parameters. ",
+                nameof(parameters));
+
+        var list = PagedList<ReservationDto>.ToPagedList(mappedQuery, parameters);
+
+        return list;
     }
 
     /// <summary>
@@ -90,13 +155,20 @@ public class ReservationService : IReservationService
         return result;
     }
 
-    public async Task<int> UpdateAsync(Guid id, ReservationDto dto)
+    /// <summary>
+    /// Removes a record from the data source.
+    /// </summary>
+    /// <param name="dto"><see cref="ReservationDto"/></param>
+    /// <returns>the number of successfully removed records.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<int> DeleteAsync(ReservationDto dto)
     {
-        throw new NotImplementedException();
-    }
+        var entity = _mapper.Map<Reservation>(dto);
 
-    public async Task<int> DeleteAsync(Guid id)
-    {
-        throw new NotImplementedException();
+        if (entity == null)
+            throw new ArgumentException(nameof(dto));
+
+        _unitOfWork.Reservations.Remove(entity);
+        return await _unitOfWork.Commit();
     }
 }
