@@ -14,6 +14,8 @@ public class WorkplaceWithEquipmentModel
     public string Room { get; set; }
     public string DeskNumber { get; set; }
 
+    public bool IsAdmin { get; set; }
+
     public PagedList<EquipmentForWorkplaceDto> EquipmentForWorkplaces { get; set; }
 
     public SelectList AvailableEquipmentList {get; set; }

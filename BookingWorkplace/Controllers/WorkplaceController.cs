@@ -220,6 +220,8 @@ namespace BookingWorkplace.Controllers
 
                 var model = _mapper.Map<WorkplaceWithEquipmentModel>(dto);
 
+                model.IsAdmin = _userManager.IsAdmin();
+
                 var equipmentList = await _equipmentService.GetAvailableEquipmentToAddToWorkplaceByWorkplaceIdAsync(id);
 
                 model.AvailableEquipmentList = new SelectList(equipmentList, nameof(EquipmentDto.Id), nameof(EquipmentDto.Type));

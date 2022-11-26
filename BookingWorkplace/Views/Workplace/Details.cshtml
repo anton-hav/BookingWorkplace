@@ -9,7 +9,12 @@
 
 <h2>Workplace details</h2>
 
-<a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+@{
+    if (Model.IsAdmin)
+    {
+        <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    }
+}
 
 
 @if (Model != null)
@@ -25,13 +30,14 @@
         </dl>
     </div>
 
-    <h3>Equipment</h3>
-    <div class="shadow p-3 mb-5 rounded">
-        <h3>Adding equipment to the workplace</h3>
-        <partial name="_AddingEquipmentForm" model="new EquipmentForWorkplaceModel() { WorkplaceId = Model.Id, AvailableEquipmentList = Model.AvailableEquipmentList }"/>
-    </div>
-    
-
+    if (Model.IsAdmin)
+    {
+        <h3>Equipment</h3>
+        <div class="shadow p-3 mb-5 rounded">
+            <h3>Adding equipment to the workplace</h3>
+            <partial name="_AddingEquipmentForm" model="new EquipmentForWorkplaceModel() { WorkplaceId = Model.Id, AvailableEquipmentList = Model.AvailableEquipmentList }"/>
+        </div>
+    }
 
     if (Model.EquipmentForWorkplaces.Any())
     {
@@ -43,7 +49,12 @@
                     <th>#</th>
                     <th>Type</th>
                     <th>Count</th>
-                    <th>Actions</th>
+                    @{
+                        if (Model.IsAdmin)
+                        {
+                                <th>Actions</th>
+                        }
+                    }
                 </tr>
                 </thead>
                 <tbody class="table-group-divider">
@@ -55,11 +66,17 @@
                             <td>@i</td>
                             <td>@item.Equipment.Type</td>
                             <td>@item.Count</td>
-                            <td>
-                                <div class="btn-group" role="group" aria-label="Actions">
-                                    <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="RemoveEquipmentFromWorkplace" asp-route-id="@item.Id">Remove</a>
-                                </div>
-                            </td>
+                            @{
+                                if (Model.IsAdmin)
+                                {
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Actions">
+                                            <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="RemoveEquipmentFromWorkplace" asp-route-id="@item.Id">Remove</a>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                            
                         </tr>
                         i++;
                     }
