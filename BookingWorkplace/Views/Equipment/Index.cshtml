@@ -23,11 +23,10 @@
 </div>
 
 
-
 @{
     var prevDisabled = !Model.Equipment.HasPrevious ? "disabled" : "";
     var nextDisabled = !Model.Equipment.HasNext ? "disabled" : "";
-    var paginationParameters = new PaginationParameters()
+    var paginationParameters = new PaginationParameters
     {
         PageSize = Model.Equipment.PageSize,
         CurrentPage = Model.Equipment.CurrentPage

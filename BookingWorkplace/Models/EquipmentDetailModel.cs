@@ -1,5 +1,5 @@
-﻿using BookingWorkplace.Core.DataTransferObjects;
-using BookingWorkplace.Core;
+﻿using BookingWorkplace.Core;
+using BookingWorkplace.Core.DataTransferObjects;
 
 namespace BookingWorkplace.Models;
 

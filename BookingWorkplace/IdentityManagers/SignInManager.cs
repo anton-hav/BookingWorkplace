@@ -1,7 +1,7 @@
-﻿using BookingWorkplace.Core.Abstractions;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace BookingWorkplace.IdentityManagers;
@@ -21,17 +21,14 @@ public class SignInManager : ISignInManager
         get
         {
             var context = _context ?? _contextAccessor?.HttpContext;
-            if (context == null)
-            {
-                throw new InvalidOperationException("HttpContext must not be null.");
-            }
+            if (context == null) throw new InvalidOperationException("HttpContext must not be null.");
             return context;
         }
         set => _context = value;
     }
 
     /// <summary>
-    /// Sign out a principal for a default authentication scheme
+    ///     Sign out a principal for a default authentication scheme
     /// </summary>
     /// <returns>The Task</returns>
     public async Task SignOutAsync()
@@ -40,16 +37,18 @@ public class SignInManager : ISignInManager
     }
 
     /// <summary>
-    /// Sign in a principal for a default authentication scheme
+    ///     Sign in a principal for a default authentication scheme
     /// </summary>
-    /// <param name="user"><see cref="UserDto"/></param>
+    /// <param name="user">
+    ///     <see cref="UserDto" />
+    /// </param>
     /// <returns>The Task</returns>
     public async Task SignInAsync(UserDto user)
     {
-        var claims = new List<Claim>()
+        var claims = new List<Claim>
         {
-            new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-            new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
+            new(ClaimsIdentity.DefaultNameClaimType, user.Email),
+            new(ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
         };
 
         var identity = new ClaimsIdentity(claims,
@@ -63,17 +62,14 @@ public class SignInManager : ISignInManager
     }
 
     /// <summary>
-    /// Checks if the user is signed in
+    ///     Checks if the user is signed in
     /// </summary>
     /// <returns>The boolean</returns>
     /// <exception cref="ArgumentNullException"></exception>
     public bool IsSignedIn()
     {
         var principal = Context.User;
-        if (principal == null)
-        {
-            throw new ArgumentNullException(nameof(principal));
-        }
+        if (principal == null) throw new ArgumentNullException(nameof(principal));
         return principal.Identities != null && principal.Identities
             .Any(i => i.IsAuthenticated.Equals(true));
     }

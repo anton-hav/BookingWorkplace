@@ -1,8 +1,5 @@
-﻿using BookingWorkplace.Core.DataTransferObjects;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using BookingWorkplace.Core;
+﻿using BookingWorkplace.Core;
+using BookingWorkplace.Core.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BookingWorkplace.Models;
@@ -18,5 +15,5 @@ public class WorkplaceWithEquipmentModel
 
     public PagedList<EquipmentForWorkplaceDto> EquipmentForWorkplaces { get; set; }
 
-    public SelectList AvailableEquipmentList {get; set; }
+    public SelectList AvailableEquipmentList { get; set; }
 }

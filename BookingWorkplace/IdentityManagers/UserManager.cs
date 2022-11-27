@@ -1,8 +1,7 @@
-﻿using BookingWorkplace.Business.ServiceImplementations;
+﻿using System.Security.Authentication;
+using System.Security.Claims;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
-using System.Security.Authentication;
-using System.Security.Claims;
 
 namespace BookingWorkplace.IdentityManagers;
 
@@ -27,49 +26,40 @@ public class UserManager : IUserManager
         get
         {
             var context = _context ?? _contextAccessor?.HttpContext;
-            if (context == null)
-            {
-                throw new InvalidOperationException("HttpContext must not be null.");
-            }
+            if (context == null) throw new InvalidOperationException("HttpContext must not be null.");
             return context;
         }
         set => _context = value;
     }
 
     /// <summary>
-    /// Returns the current authorized user. 
+    ///     Returns the current authorized user.
     /// </summary>
-    /// <returns>The Task&lt;Result&gt; where Result is <see cref="UserDTO"/></returns>
+    /// <returns>The Task&lt;Result&gt; where Result is <see cref="UserDTO" /></returns>
     /// <exception cref="AuthenticationException"></exception>
     public async Task<UserDto> GetUserAsync()
     {
         var email = Context.User.Identity?.Name;
-        if (email != null)
-        {
-            return await _userService.GetUserByEmailAsync(email);
-        }
+        if (email != null) return await _userService.GetUserByEmailAsync(email);
 
         throw new AuthenticationException(nameof(email));
     }
 
     /// <summary>
-    /// Gets the current authorized user Id.
+    ///     Gets the current authorized user Id.
     /// </summary>
     /// <returns>The Task&lt;Result&gt; where Result is GUID</returns>
     /// <exception cref="AuthenticationException"></exception>
     public async Task<Guid> GetUserIdAsync()
     {
         var email = Context.User.Identity?.Name;
-        if (email != null)
-        {
-            return (await _userService.GetUserByEmailAsync(email)).Id;
-        }
+        if (email != null) return (await _userService.GetUserByEmailAsync(email)).Id;
 
         throw new AuthenticationException(nameof(email));
     }
 
     /// <summary>
-    /// Gets the role of the current authorized user.
+    ///     Gets the role of the current authorized user.
     /// </summary>
     /// <returns>the role as a string</returns>
     /// <exception cref="AuthenticationException"></exception>
@@ -79,16 +69,13 @@ public class UserManager : IUserManager
             .FirstOrDefault(claim => claim.Type
                 .Equals(ClaimsIdentity.DefaultRoleClaimType));
 
-        if (roleClaim == null)
-        {
-            throw new AuthenticationException(nameof(roleClaim));
-        }
+        if (roleClaim == null) throw new AuthenticationException(nameof(roleClaim));
 
         return roleClaim.Value;
     }
 
     /// <summary>
-    /// Checks if the current authorized user has a User role.
+    ///     Checks if the current authorized user has a User role.
     /// </summary>
     /// <returns>The Boolean</returns>
     public bool IsUser()
@@ -99,7 +86,7 @@ public class UserManager : IUserManager
     }
 
     /// <summary>
-    /// Checks if the current authorized user has a Admin role.
+    ///     Checks if the current authorized user has a Admin role.
     /// </summary>
     /// <returns>The Boolean</returns>
     public bool IsAdmin()

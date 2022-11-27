@@ -19,7 +19,7 @@ public static class SessionExtensions
     public static bool TryGetValue<T>(this ISession session, string key, [NotNullWhen(true)] out T value)
     {
         var str = session.GetString(key);
-        if (!String.IsNullOrEmpty(str))
+        if (!string.IsNullOrEmpty(str))
         {
             var temp = JsonConvert.DeserializeObject<T>(str);
             if (temp != null)
@@ -27,8 +27,10 @@ public static class SessionExtensions
                 value = temp;
                 return true;
             }
-        };
-        value = default(T)!;
+        }
+
+        ;
+        value = default!;
 
         return false;
     }

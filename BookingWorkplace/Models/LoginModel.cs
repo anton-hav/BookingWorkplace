@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookingWorkplace.Models;
 
 public class LoginModel
 {
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
+    [Required] [EmailAddress] public string Email { get; set; }
 
 
     [Required]

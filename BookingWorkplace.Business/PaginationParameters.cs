@@ -1,12 +1,9 @@
-﻿using Azure;
-using BookingWorkplace.Core.Abstractions;
-using System.Globalization;
-using System;
+﻿using BookingWorkplace.Core.Abstractions;
 
 namespace BookingWorkplace.Business;
 
 /// <summary>
-/// Class is the container for the actual pagination parameters.
+///     Class is the container for the actual pagination parameters.
 /// </summary>
 public class PaginationParameters : IPaginationParameters
 {
@@ -14,12 +11,12 @@ public class PaginationParameters : IPaginationParameters
     private int _pageSize = 10;
 
     /// <summary>
-    /// Contains information about the page number. The default value is 1
+    ///     Contains information about the page number. The default value is 1
     /// </summary>
     public int CurrentPage { get; set; } = 1;
 
     /// <summary>
-    /// Contains information about the number of elements on the page. The maximum value is 100
+    ///     Contains information about the number of elements on the page. The maximum value is 100
     /// </summary>
     public int PageSize
     {

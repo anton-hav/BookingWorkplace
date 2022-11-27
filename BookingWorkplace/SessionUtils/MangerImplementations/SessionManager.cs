@@ -22,17 +22,14 @@ public class SessionManager : ISessionManager
         get
         {
             var context = _context ?? _contextAccessor?.HttpContext;
-            if (context == null)
-            {
-                throw new InvalidOperationException("HttpContext must not be null.");
-            }
+            if (context == null) throw new InvalidOperationException("HttpContext must not be null.");
             return context;
         }
         set => _context = value;
     }
 
     /// <summary>
-    /// Checks the existence of a reservation session for the current user
+    ///     Checks the existence of a reservation session for the current user
     /// </summary>
     /// <returns>A Boolean</returns>
     public async Task<bool> IsSessionExistAsync()
@@ -43,9 +40,11 @@ public class SessionManager : ISessionManager
     }
 
     /// <summary>
-    /// Gets a reservation session for the current user.
+    ///     Gets a reservation session for the current user.
     /// </summary>
-    /// <returns><see cref="ReservationSession"/></returns>
+    /// <returns>
+    ///     <see cref="ReservationSession" />
+    /// </returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ReservationSession> GetSessionAsync()
     {
@@ -54,13 +53,14 @@ public class SessionManager : ISessionManager
         if (isSucceed)
             return reservationSession;
 
-        throw new InvalidOperationException("Session not found. Possibly the lifetime of the session has been exceeded.");
+        throw new InvalidOperationException(
+            "Session not found. Possibly the lifetime of the session has been exceeded.");
     }
 
     /// <summary>
-    /// Sets a reservation session for the current user.
+    ///     Sets a reservation session for the current user.
     /// </summary>
-    /// <param name="session">a <see cref="ReservationSession"/> instance</param>
+    /// <param name="session">a <see cref="ReservationSession" /> instance</param>
     /// <returns>The Task</returns>
     public async Task SetSessionAsync(ReservationSession session)
     {
@@ -69,7 +69,7 @@ public class SessionManager : ISessionManager
     }
 
     /// <summary>
-    /// Remove the current reservation session
+    ///     Remove the current reservation session
     /// </summary>
     /// <returns>The Task</returns>
     /// <exception cref="InvalidOperationException"></exception>
@@ -84,7 +84,7 @@ public class SessionManager : ISessionManager
     }
 
     /// <summary>
-    /// Generates a session key from the current User Id
+    ///     Generates a session key from the current User Id
     /// </summary>
     /// <returns>a session key as a string</returns>
     private async Task<string> GetSessionKeyAsync()

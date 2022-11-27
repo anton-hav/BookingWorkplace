@@ -15,15 +15,17 @@ public class BookingWorkplaceDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<Reservation>()
-            .HasIndex(reservation => new {
+            .HasIndex(reservation => new
+            {
                 reservation.WorkplaceId,
                 reservation.TimeFrom,
-                reservation.TimeTo,
+                reservation.TimeTo
             })
             .IsUnique();
 
         builder.Entity<Workplace>()
-            .HasIndex(workplace => new {
+            .HasIndex(workplace => new
+            {
                 workplace.Room,
                 workplace.Floor,
                 workplace.DeskNumber
@@ -31,7 +33,8 @@ public class BookingWorkplaceDbContext : DbContext
             .IsUnique();
 
         builder.Entity<EquipmentForWorkplace>()
-            .HasIndex(eFW => new {
+            .HasIndex(eFW => new
+            {
                 eFW.EquipmentId, WorkplacesId = eFW.WorkplaceId
             })
             .IsUnique();

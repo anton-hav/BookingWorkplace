@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Security.Cryptography;
+using System.Text;
+using AutoMapper;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Data.Abstractions;
@@ -15,9 +17,9 @@ public class UserService : IUserService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRoleService _roleService;
 
-    public UserService(IMapper mapper, 
-        IConfiguration configuration, 
-        IUnitOfWork unitOfWork, 
+    public UserService(IMapper mapper,
+        IConfiguration configuration,
+        IUnitOfWork unitOfWork,
         IRoleService roleService)
     {
         _mapper = mapper;
@@ -27,7 +29,7 @@ public class UserService : IUserService
     }
 
     /// <summary>
-    /// Gets user by email as a string
+    ///     Gets user by email as a string
     /// </summary>
     /// <param name="email">user email as a string</param>
     /// <returns>The Task&lt;Result&gt; where Result is UserDto</returns>
@@ -40,16 +42,13 @@ public class UserService : IUserService
             .AsNoTracking()
             .Select(user => _mapper.Map<UserDto>(user))
             .FirstOrDefaultAsync();
-        if (user != null)
-        {
-            return user;
-        }
+        if (user != null) return user;
 
         throw new ArgumentException(nameof(email));
     }
 
     /// <summary>
-    /// Checks if the user exists in the data source.
+    ///     Checks if the user exists in the data source.
     /// </summary>
     /// <param name="email">user email as a string</param>
     /// <returns>The Task&lt;Result&gt; where Result is the Boolean</returns>
@@ -60,7 +59,7 @@ public class UserService : IUserService
     }
 
     /// <summary>
-    /// Checks if the user password corrects
+    ///     Checks if the user password corrects
     /// </summary>
     /// <param name="email">user email as a string</param>
     /// <param name="password">user password as a string</param>
@@ -77,7 +76,7 @@ public class UserService : IUserService
     }
 
     /// <summary>
-    /// Checks if the user is the first record in the data source.
+    ///     Checks if the user is the first record in the data source.
     /// </summary>
     /// <returns>The Boolean</returns>
     public bool IsUserTheFirst()
@@ -91,17 +90,17 @@ public class UserService : IUserService
     }
 
     /// <summary>
-    /// Creates a new user record in the data source. 
+    ///     Creates a new user record in the data source.
     /// </summary>
     /// <remarks>
-    /// Creates the user record as an Admin if this is the first record, otherwise, it registers as a User.
+    ///     Creates the user record as an Admin if this is the first record, otherwise, it registers as a User.
     /// </remarks>
     /// <param name="dto"></param>
     /// <returns>The Task&lt;Result&gt; where Result is the number of successfully created records.</returns>
     public async Task<int> RegisterUserAsync(UserDto dto)
     {
-        var roleId = IsUserTheFirst() 
-            ? await _roleService.GetRoleIdForAdminRoleAsync() 
+        var roleId = IsUserTheFirst()
+            ? await _roleService.GetRoleIdForAdminRoleAsync()
             : await _roleService.GetRoleIdForDefaultRoleAsync();
 
         dto.RoleId = roleId;
@@ -115,7 +114,7 @@ public class UserService : IUserService
     }
 
     /// <summary>
-    /// Creates MD5 hash
+    ///     Creates MD5 hash
     /// </summary>
     /// <param name="password">a password as a string</param>
     /// <returns>The hash as a string</returns>
@@ -123,9 +122,9 @@ public class UserService : IUserService
     {
         var passwordSalt = _configuration["UserSecrets:PasswordSalt"];
 
-        using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+        using (var md5 = MD5.Create())
         {
-            var inputBytes = System.Text.Encoding.UTF8.GetBytes(password + passwordSalt);
+            var inputBytes = Encoding.UTF8.GetBytes(password + passwordSalt);
             var hashBytes = md5.ComputeHash(inputBytes);
 
             return Convert.ToHexString(hashBytes);

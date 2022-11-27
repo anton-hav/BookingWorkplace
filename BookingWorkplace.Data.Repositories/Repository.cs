@@ -36,10 +36,8 @@ public class Repository<T> : IRepository<T>
     {
         var result = DbSet.Where(searchExpression);
         if (includes.Any())
-        {
             result = includes.Aggregate(result, (current, include) =>
                 current.Include(include));
-        }
 
         return result;
     }

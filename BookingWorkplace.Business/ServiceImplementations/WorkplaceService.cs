@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
@@ -13,19 +12,16 @@ public class WorkplaceService : IWorkplaceService
 {
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
 
-    public WorkplaceService(IMapper mapper, 
-        IUnitOfWork unitOfWork, 
-        IEquipmentForWorkplaceService equipmentForWorkplaceService)
+    public WorkplaceService(IMapper mapper,
+        IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _equipmentForWorkplaceService = equipmentForWorkplaceService;
     }
 
     /// <summary>
-    /// Gets the object that corresponding Id  from the data source and returns as a response.
+    ///     Gets the object that corresponding Id  from the data source and returns as a response.
     /// </summary>
     /// <param name="id">unique identifier</param>
     /// <returns>data transfer object corresponding to the id</returns>
@@ -42,10 +38,10 @@ public class WorkplaceService : IWorkplaceService
     }
 
     /// <summary>
-    /// Executes a retrieval query with the corresponding "id" of the entity in the data source include
-    /// EquipmentForWorkplaces property with its navigate properties. If a matching entity is found,
-    /// a mapping is performed from entity type to data transfer object type.
-    /// The result of the mapping is returned
+    ///     Executes a retrieval query with the corresponding "id" of the entity in the data source include
+    ///     EquipmentForWorkplaces property with its navigate properties. If a matching entity is found,
+    ///     a mapping is performed from entity type to data transfer object type.
+    ///     The result of the mapping is returned
     /// </summary>
     /// <param name="id">unique identifier</param>
     /// <returns>data transfer object corresponding to the id</returns>
@@ -68,9 +64,10 @@ public class WorkplaceService : IWorkplaceService
     }
 
     /// <summary>
-    /// Execute an entity search on the data source by IQueryStringParameters.SearchString. Execute a sort,
-    /// and skips the number equal to the product of IQueryStringParameters.CurrentPage and IQueryStringParameters.PageSize.
-    /// Retrieves *IQueryStringParameters.PageSize* of the following records. Execute mapping.
+    ///     Execute an entity search on the data source by IQueryStringParameters.SearchString. Execute a sort,
+    ///     and skips the number equal to the product of IQueryStringParameters.CurrentPage and
+    ///     IQueryStringParameters.PageSize.
+    ///     Retrieves *IQueryStringParameters.PageSize* of the following records. Execute mapping.
     /// </summary>
     /// <param name="parameters">object that implements IQueryStringParameters</param>
     /// <returns>PagedList of data transfer objects</returns>
@@ -80,10 +77,10 @@ public class WorkplaceService : IWorkplaceService
             .Get()
             .AsNoTracking();
 
-        if (!String.IsNullOrEmpty(parameters.SearchString))
+        if (!string.IsNullOrEmpty(parameters.SearchString))
             query = query.Where(entity => entity.Room.Contains(parameters.SearchString)
-            || entity.Floor.Contains(parameters.SearchString)
-            || entity.DeskNumber.Contains(parameters.SearchString));
+                                          || entity.Floor.Contains(parameters.SearchString)
+                                          || entity.DeskNumber.Contains(parameters.SearchString));
 
         var mappedQuery = query
             .OrderBy(entity => entity.Floor)
@@ -102,31 +99,20 @@ public class WorkplaceService : IWorkplaceService
 
     public List<WorkplaceDto> GetWorkplacesByFilterParameters(IFilterParameters parameters)
     {
-        //var dto = _unitOfWork.Workplaces
-        //    .Get()
-        //    .Include(w => w.EquipmentForWorkplaces)
-        //    .Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(Guid.Parse("A94EBB66-CEE0-4EDE-B46A-EADEBFC589B0"))))
-        //    .AsNoTracking()
-        //    .Select(w => _mapper.Map<WorkplaceDto>(w))
-        //    .ToList();
-
         var query = _unitOfWork.Workplaces
             .Get();
-            //.Include(w => w.EquipmentForWorkplaces);
 
-            query = query.Where(w =>
-                !w.Reservations
-                    .Any(res => (parameters.TimeFrom <= res.TimeFrom
-                                 && res.TimeFrom <= parameters.TimeTo)
-                                || (parameters.TimeFrom <= res.TimeTo
-                                    && res.TimeTo <= parameters.TimeTo)
-                                || (parameters.TimeFrom > res.TimeFrom
-                                    && parameters.TimeTo < res.TimeTo)));
+        query = query.Where(w =>
+            !w.Reservations
+                .Any(res => (parameters.TimeFrom <= res.TimeFrom
+                             && res.TimeFrom <= parameters.TimeTo)
+                            || (parameters.TimeFrom <= res.TimeTo
+                                && res.TimeTo <= parameters.TimeTo)
+                            || (parameters.TimeFrom > res.TimeFrom
+                                && parameters.TimeTo < res.TimeTo)));
 
         foreach (var param in parameters.EquipmentIds)
-        {
             query = query.Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(param)));
-        }
 
         var dto = query.AsNoTracking().Select(w => _mapper.Map<WorkplaceDto>(w)).ToList();
 
@@ -134,10 +120,10 @@ public class WorkplaceService : IWorkplaceService
     }
 
     /// <summary>
-    /// Gets the list of <see cref="WorkplaceDto"/> that only meet the requirements of the reservation time parameters.
-    /// Excludes from the list the <see cref="WorkplaceDto"/> contained in <see cref="exclusionList"/>
+    ///     Gets the list of <see cref="WorkplaceDto" /> that only meet the requirements of the reservation time parameters.
+    ///     Excludes from the list the <see cref="WorkplaceDto" /> contained in <see cref="exclusionList" />
     /// </summary>
-    /// <param name="parameters">object that implements <see cref="IFilterParameters"/>.</param>
+    /// <param name="parameters">object that implements <see cref="IFilterParameters" />.</param>
     /// <param name="exclusionList"></param>
     /// <returns></returns>
     public async Task<List<WorkplaceDto>> GetPossibleWorkplacesByFilterParameters(IFilterParameters parameters,
@@ -146,10 +132,7 @@ public class WorkplaceService : IWorkplaceService
         var query = _unitOfWork.Workplaces.Get();
 
         // Skip relevant workplaces
-        foreach (var workplace in exclusionList)
-        {
-            query = query.Where(w => !w.Id.Equals(workplace.Id));
-        }
+        foreach (var workplace in exclusionList) query = query.Where(w => !w.Id.Equals(workplace.Id));
 
         // Find free workplaces for filter parameters
         query = query.Where(w =>
@@ -162,12 +145,12 @@ public class WorkplaceService : IWorkplaceService
                                 && parameters.TimeTo < res.TimeTo)));
 
         var freeWorkplaces = await query.AsNoTracking().ToListAsync();
-        
+
         return _mapper.Map<List<WorkplaceDto>>(freeWorkplaces);
     }
 
     /// <summary>
-    /// Checks for existing a record in the data source that matches the parameters.
+    ///     Checks for existing a record in the data source that matches the parameters.
     /// </summary>
     /// <param name="roomNumber">room number of the current workplace as a string</param>
     /// <param name="floorNumber">floor number of the current workplace as a string</param>
@@ -180,14 +163,16 @@ public class WorkplaceService : IWorkplaceService
             .FirstOrDefaultAsync(entity => entity.Floor.Equals(floorNumber)
                                            && entity.Room.Equals(roomNumber)
                                            && entity.DeskNumber.Equals(deskNumber));
-        
+
         return entity != null;
     }
 
     /// <summary>
-    /// Create a new record in the data source.
+    ///     Create a new record in the data source.
     /// </summary>
-    /// <param name="dto"><see cref="WorkplaceDto"/></param>
+    /// <param name="dto">
+    ///     <see cref="WorkplaceDto" />
+    /// </param>
     /// <returns>the number of successfully created records in the data source</returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<int> CreateWorkplaceAsync(WorkplaceDto dto)
@@ -203,7 +188,7 @@ public class WorkplaceService : IWorkplaceService
     }
 
     /// <summary>
-    /// Executes record patching in the data source
+    ///     Executes record patching in the data source
     /// </summary>
     /// <param name="id">unique identifier of record</param>
     /// <param name="dto">modified data transfer object</param>
@@ -215,31 +200,25 @@ public class WorkplaceService : IWorkplaceService
         var patchList = new List<PatchModel>();
 
         if (!dto.Room.Equals(sourceDto.Room))
-        {
-            patchList.Add(new PatchModel()
+            patchList.Add(new PatchModel
             {
                 PropertyName = nameof(dto.Room),
                 PropertyValue = dto.Room
             });
-        }
 
         if (!dto.Floor.Equals(sourceDto.Floor))
-        {
-            patchList.Add(new PatchModel()
+            patchList.Add(new PatchModel
             {
                 PropertyName = nameof(dto.Floor),
                 PropertyValue = dto.Floor
             });
-        }
 
         if (!dto.DeskNumber.Equals(sourceDto.DeskNumber))
-        {
-            patchList.Add(new PatchModel()
+            patchList.Add(new PatchModel
             {
                 PropertyName = nameof(dto.DeskNumber),
                 PropertyValue = dto.DeskNumber
             });
-        }
 
         await _unitOfWork.Workplaces.PatchAsync(id, patchList);
         return await _unitOfWork.Commit();

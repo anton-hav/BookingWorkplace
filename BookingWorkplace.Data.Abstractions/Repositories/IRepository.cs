@@ -9,6 +9,7 @@ public interface IRepository<T> where T : IBaseEntity
     //READ
     Task<T?> GetByIdAsync(Guid id);
     IQueryable<T> Get();
+
     IQueryable<T> FindBy(Expression<Func<T, bool>> searchExpression,
         params Expression<Func<T, object>>[] includes);
 

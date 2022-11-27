@@ -7,12 +7,9 @@ namespace BookingWorkplace.Models;
 public class WorkplaceModel
 {
     public Guid Id { get; set; }
-    [Required]
-    [MinLength(1)]
-    public string Floor { get; set; }
-    [Required]
-    [MinLength(1)]
-    public string Room { get; set; }
+    [Required] [MinLength(1)] public string Floor { get; set; }
+    [Required] [MinLength(1)] public string Room { get; set; }
+
     [Required]
     [MinLength(1)]
     [Remote("CheckWorkplaceForExistence", "Workplace",

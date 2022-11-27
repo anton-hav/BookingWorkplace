@@ -18,9 +18,9 @@ public class WorkplaceProfile : Profile
         CreateMap<WorkplaceModel, WorkplaceDto>();
 
         CreateMap<WorkplaceDto, WorkplaceWithEquipmentModel>()
-            .ForMember(model => model.EquipmentForWorkplaces, 
-                opt 
-                    => opt.MapFrom(dto 
+            .ForMember(model => model.EquipmentForWorkplaces,
+                opt
+                    => opt.MapFrom(dto
                         => PagedList<EquipmentForWorkplaceDto>
                             .ToPagedList(dto.EquipmentForWorkplaces.AsQueryable(), new PaginationParameters())));
         CreateMap<WorkplaceWithEquipmentModel, WorkplaceDto>();

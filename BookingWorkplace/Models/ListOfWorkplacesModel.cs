@@ -1,6 +1,6 @@
-﻿using BookingWorkplace.Core.Abstractions;
+﻿using BookingWorkplace.Core;
+using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
-using BookingWorkplace.Core;
 
 namespace BookingWorkplace.Models;
 

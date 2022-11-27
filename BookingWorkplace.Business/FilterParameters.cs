@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BookingWorkplace.Core.Abstractions;
+﻿using BookingWorkplace.Core.Abstractions;
 
 namespace BookingWorkplace.Business;
 
@@ -17,10 +16,9 @@ public class FilterParameters : IFilterParameters
             { nameof(TimeTo), TimeTo.ToString("u") }
         };
 
-        for (int i = 0; i < EquipmentIds.Count; i++)
-        {
+        for (var i = 0; i < EquipmentIds.Count; i++)
             dict.Add($"{nameof(EquipmentIds)}[{i}]", EquipmentIds[i].ToString("N"));
-        };
+        ;
 
         return dict;
     }

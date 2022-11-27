@@ -1,8 +1,6 @@
-﻿using BookingWorkplace.Core;
-using BookingWorkplace.Core.Abstractions;
-using BookingWorkplace.Core.DataTransferObjects;
+﻿using BookingWorkplace.Core.DataTransferObjects;
 
-namespace BookingReservation.Core.Abstractions;
+namespace BookingWorkplace.Core.Abstractions;
 
 public interface IReservationService
 {

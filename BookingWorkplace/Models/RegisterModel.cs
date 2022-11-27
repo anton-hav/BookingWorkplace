@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookingWorkplace.Models;
 

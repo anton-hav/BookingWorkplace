@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BookingReservation.Core.Abstractions;
 using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
@@ -14,7 +13,7 @@ public class ReservationService : IReservationService
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ReservationService(IMapper mapper, 
+    public ReservationService(IMapper mapper,
         IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
@@ -22,10 +21,12 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
-    /// Gets a reservation by unique identifier from the data source.
+    ///     Gets a reservation by unique identifier from the data source.
     /// </summary>
-    /// <param name="id">unique identifier as a <see cref="Guid"/></param>
-    /// <returns><see cref="ReservationDto"/></returns>
+    /// <param name="id">unique identifier as a <see cref="Guid" /></param>
+    /// <returns>
+    ///     <see cref="ReservationDto" />
+    /// </returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<ReservationDto> GetReservationByIdAsync(Guid id)
     {
@@ -41,41 +42,41 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
-    /// Execute records search on the data source by <see cref="IQueryStringParameters"/>. Execute a sort,
-    /// and skips the number equal to the product of IQueryStringParameters.CurrentPage and IQueryStringParameters.PageSize.
-    /// Retrieves *IQueryStringParameters.PageSize* of the following records.
+    ///     Execute records search on the data source by <see cref="IQueryStringParameters" />. Execute a sort,
+    ///     and skips the number equal to the product of IQueryStringParameters.CurrentPage and
+    ///     IQueryStringParameters.PageSize.
+    ///     Retrieves *IQueryStringParameters.PageSize* of the following records.
     /// </summary>
-    /// <param name="parameters">object that implements <see cref="IQueryStringParameters"/></param>
-    /// <returns><see cref="PagedList{T}"/> where T is <see cref="ReservationDto"/></returns>
+    /// <param name="parameters">object that implements <see cref="IQueryStringParameters" /></param>
+    /// <returns><see cref="PagedList{T}" /> where T is <see cref="ReservationDto" /></returns>
     public PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters)
     {
         return GetReservationsByQueryStringParameters(parameters, Guid.Empty);
     }
 
     /// <summary>
-    /// Execute records search on the data source by <see cref="IQueryStringParameters"/>. Execute a sort,
-    /// and skips the number equal to the product of IQueryStringParameters.CurrentPage and IQueryStringParameters.PageSize.
-    /// Retrieves *IQueryStringParameters.PageSize* of the following records.
+    ///     Execute records search on the data source by <see cref="IQueryStringParameters" />. Execute a sort,
+    ///     and skips the number equal to the product of IQueryStringParameters.CurrentPage and
+    ///     IQueryStringParameters.PageSize.
+    ///     Retrieves *IQueryStringParameters.PageSize* of the following records.
     /// </summary>
-    /// <param name="parameters">object that implements <see cref="IQueryStringParameters"/></param>
+    /// <param name="parameters">object that implements <see cref="IQueryStringParameters" /></param>
     /// <param name="userId">unique identifier of the current user</param>
-    /// <returns><see cref="PagedList{T}"/> where T is <see cref="ReservationDto"/></returns>
+    /// <returns><see cref="PagedList{T}" /> where T is <see cref="ReservationDto" /></returns>
     /// <exception cref="ArgumentException"></exception>
-    public PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters, Guid userId)
+    public PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters,
+        Guid userId)
     {
         var query = _unitOfWork.Reservations
             .Get();
 
-        if (!userId.Equals(Guid.Empty))
-        {
-            query = query.Where(entity => entity.UserId.Equals(userId));
-        }
+        if (!userId.Equals(Guid.Empty)) query = query.Where(entity => entity.UserId.Equals(userId));
 
-        if (!String.IsNullOrEmpty(parameters.SearchString))
+        if (!string.IsNullOrEmpty(parameters.SearchString))
             query = query.Where(entity => entity.Workplace.Room.Contains(parameters.SearchString)
-                                           || entity.Workplace.Floor.Contains(parameters.SearchString)
-                                           || entity.Workplace.DeskNumber.Contains(parameters.SearchString)
-                                           || entity.User.Email.Contains(parameters.SearchString));
+                                          || entity.Workplace.Floor.Contains(parameters.SearchString)
+                                          || entity.Workplace.DeskNumber.Contains(parameters.SearchString)
+                                          || entity.User.Email.Contains(parameters.SearchString));
 
         var mappedQuery = query
             .Include(entity => entity.Workplace)
@@ -97,10 +98,10 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
-    /// Gets the end date of the workplace reservation.
+    ///     Gets the end date of the workplace reservation.
     /// </summary>
     /// <param name="workplaceId"></param>
-    /// <returns>the last day of the job reservation as a <see cref="DateTime"/></returns>
+    /// <returns>the last day of the job reservation as a <see cref="DateTime" /></returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<DateTime> GetEndDateOfReservationByWorkplaceId(Guid workplaceId)
     {
@@ -117,11 +118,11 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
-    /// Checks for existing a record in the data source that matches the parameters.
+    ///     Checks for existing a record in the data source that matches the parameters.
     /// </summary>
-    /// <param name="workplaceId">workplace unique identifier as a <see cref="Guid"/></param>
-    /// <param name="timeFrom">a check in time as a <see cref="DateTime"/></param>
-    /// <param name="timeTo">a check out time as a <see cref="DateTime"/></param>
+    /// <param name="workplaceId">workplace unique identifier as a <see cref="Guid" /></param>
+    /// <param name="timeFrom">a check in time as a <see cref="DateTime" /></param>
+    /// <param name="timeTo">a check out time as a <see cref="DateTime" /></param>
     /// <returns>A boolean (true if the record exists, or false if it does not exist)</returns>
     public async Task<bool> IsReservationExistAsync(Guid workplaceId, DateTime timeFrom, DateTime timeTo)
     {
@@ -137,11 +138,11 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
-    /// Checks for existing any record in the data source with a time interval overlapping the parameters.
+    ///     Checks for existing any record in the data source with a time interval overlapping the parameters.
     /// </summary>
-    /// <param name="userId">a user unique identifier as a <see cref="Guid"/></param>
-    /// <param name="timeFrom">a check in time as a <see cref="DateTime"/></param>
-    /// <param name="timeTo">a check out time as a <see cref="DateTime"/></param>
+    /// <param name="userId">a user unique identifier as a <see cref="Guid" /></param>
+    /// <param name="timeFrom">a check in time as a <see cref="DateTime" /></param>
+    /// <param name="timeTo">a check out time as a <see cref="DateTime" /></param>
     /// <returns>A boolean (true if the record exists, or false if it does not exist)</returns>
     public async Task<bool> IsReservationForUserExistAsync(Guid userId, DateTime timeFrom, DateTime timeTo)
     {
@@ -150,17 +151,19 @@ public class ReservationService : IReservationService
             .AsNoTracking()
             .FirstOrDefaultAsync(entity =>
                 entity.UserId.Equals(userId)
-                && ((timeFrom <= entity.TimeFrom && entity.TimeFrom <= timeTo) 
-                    || (timeFrom <= entity.TimeTo && entity.TimeTo <= timeTo) 
+                && ((timeFrom <= entity.TimeFrom && entity.TimeFrom <= timeTo)
+                    || (timeFrom <= entity.TimeTo && entity.TimeTo <= timeTo)
                     || (timeFrom > entity.TimeFrom && entity.TimeFrom > timeTo)));
 
         return entity != null;
     }
 
     /// <summary>
-    /// Create a new record in the data source.
+    ///     Create a new record in the data source.
     /// </summary>
-    /// <param name="dto"><see cref="ReservationDto"/></param>
+    /// <param name="dto">
+    ///     <see cref="ReservationDto" />
+    /// </param>
     /// <returns>the number of successfully created records in the data source</returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<int> CreateReservationAsync(ReservationDto dto)
@@ -176,9 +179,11 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
-    /// Removes a record from the data source.
+    ///     Removes a record from the data source.
     /// </summary>
-    /// <param name="dto"><see cref="ReservationDto"/></param>
+    /// <param name="dto">
+    ///     <see cref="ReservationDto" />
+    /// </param>
     /// <returns>the number of successfully removed records.</returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<int> DeleteAsync(ReservationDto dto)

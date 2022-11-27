@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BookingReservation.Core.Abstractions;
 using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
@@ -15,8 +14,8 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IReservationService _reservationService;
 
-    public EquipmentForWorkplaceService(IMapper mapper, 
-        IUnitOfWork unitOfWork, 
+    public EquipmentForWorkplaceService(IMapper mapper,
+        IUnitOfWork unitOfWork,
         IReservationService reservationService)
     {
         _mapper = mapper;
@@ -25,7 +24,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     }
 
     /// <summary>
-    /// Gets the object that corresponding Id  from the data source and returns as a response.
+    ///     Gets the object that corresponding Id  from the data source and returns as a response.
     /// </summary>
     /// <param name="id">unique identifier</param>
     /// <returns></returns>
@@ -35,17 +34,20 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
         var entity = await _unitOfWork.EquipmentForWorkplaces.GetByIdAsync(id);
 
         if (entity == null)
-            throw new ArgumentException("No record of the equipment for workplace was found in the database.", nameof(id));
+            throw new ArgumentException("No record of the equipment for workplace was found in the database.",
+                nameof(id));
 
         var dto = _mapper.Map<EquipmentForWorkplaceDto>(entity);
         return dto;
     }
 
     /// <summary>
-    /// Gets equipment by the equipment for the workplace unique identifier.
+    ///     Gets equipment by the equipment for the workplace unique identifier.
     /// </summary>
-    /// <param name="id">an unique identifier of the equipment for workplace as a <see cref="Guid"/></param>
-    /// <returns><see cref="EquipmentDto"/></returns>
+    /// <param name="id">an unique identifier of the equipment for workplace as a <see cref="Guid" /></param>
+    /// <returns>
+    ///     <see cref="EquipmentDto" />
+    /// </returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<EquipmentDto> GetEquipmentByEquipmentForWorkplaceIdAsync(Guid id)
     {
@@ -62,11 +64,11 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     }
 
     /// <summary>
-    /// Gets a equipment movement data.
+    ///     Gets a equipment movement data.
     /// </summary>
     /// <param name="id">a unique identifier of the equipment for the workplace</param>
     /// <param name="destinationId">a unique destination identifier</param>
-    /// <returns>a equipment movement data as a <see cref="EquipmentMovementData"/></returns>
+    /// <returns>a equipment movement data as a <see cref="EquipmentMovementData" /></returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<EquipmentMovementData> GetEquipmentMovementDataAsync(Guid id, Guid destinationId)
     {
@@ -78,7 +80,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
         var dateOfMovement = await _reservationService
             .GetEndDateOfReservationByWorkplaceId(entity.WorkplaceId);
 
-        var equipmentMovementData = new EquipmentMovementData()
+        var equipmentMovementData = new EquipmentMovementData
         {
             EquipmentId = id,
             PreviousWorkplace = entity.WorkplaceId,
@@ -89,25 +91,10 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
         return equipmentMovementData;
     }
 
-    public PagedList<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByQueryStringParameters(IQueryStringParameters parameters)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<List<EquipmentForWorkplaceDto>> GetAvailableEquipmentForWorkplaceByWorkplaceId(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> IsEquipmentForWorkplaceExistAsync(string typeName)
-    {
-        throw new NotImplementedException();
-    }
-
     /// <summary>
-    /// Checks the possibility of forming a pool of necessary equipment to satisfy the filter list.
+    ///     Checks the possibility of forming a pool of necessary equipment to satisfy the filter list.
     /// </summary>
-    /// <param name="parameters">object that implements <see cref="IFilterParameters"/>.</param>
+    /// <param name="parameters">object that implements <see cref="IFilterParameters" />.</param>
     /// <returns>A boolean</returns>
     public async Task<bool> IsPossibleToFindNecessaryEquipmentToMoveAsync(IFilterParameters parameters)
     {
@@ -122,10 +109,10 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
                         .Any(r => r.TimeTo >= parameters.TimeFrom))
                 .Where(eFW => eFW.EquipmentId.Equals(id))
                 .FirstOrDefaultAsync();
-            
+
             result.Add(entity != null);
         }
-        
+
         return result.TrueForAll(r => r);
     }
 
@@ -153,7 +140,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     }
 
     /// <summary>
-    /// Creates a new record in the data source
+    ///     Creates a new record in the data source
     /// </summary>
     /// <param name="dto">data transfer object</param>
     /// <returns>the number of successfully created records in the data source</returns>
@@ -163,27 +150,26 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
         var entity = _mapper.Map<EquipmentForWorkplace>(dto);
 
         if (entity == null)
-            throw new ArgumentException("Mapping EquipmentForWorkplaceDto to EquipmentForWorkplace was not possible.", nameof(dto));
+            throw new ArgumentException("Mapping EquipmentForWorkplaceDto to EquipmentForWorkplace was not possible.",
+                nameof(dto));
 
         await _unitOfWork.EquipmentForWorkplaces.AddAsync(entity);
         var result = await _unitOfWork.Commit();
         return result;
     }
 
-    public async Task<int> UpdateAsync(Guid id, EquipmentForWorkplaceDto equipment)
-    {
-        throw new NotImplementedException();
-    }
-
     /// <summary>
-    /// Prepares records for patching.
+    ///     Prepares records for patching.
     /// </summary>
-    /// <remarks>There is no change in the data source.
-    /// Changes will be committed at the moment of calling save changes for DBContext</remarks>
+    /// <remarks>
+    ///     There is no change in the data source.
+    ///     Changes will be committed at the moment of calling save changes for DBContext
+    /// </remarks>
     /// <param name="equipmentIds">List of relocation equipment</param>
-    /// <param name="workplaceId">workplace unique identifier as <see cref="Guid"/></param>
+    /// <param name="workplaceId">workplace unique identifier as <see cref="Guid" /></param>
     /// <returns>The Task</returns>
-    public async Task PrepareEquipmentForRelocationToWorkplaceAsync(List<EquipmentForWorkplaceDto> equipment, Guid workplaceId)
+    public async Task PrepareEquipmentForRelocationToWorkplaceAsync(List<EquipmentForWorkplaceDto> equipment,
+        Guid workplaceId)
     {
         foreach (var dto in equipment)
         {
@@ -192,20 +178,18 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
             var patchList = new List<PatchModel>();
 
             if (!workplaceId.Equals(sourceDto.WorkplaceId))
-            {
-                patchList.Add(new PatchModel()
+                patchList.Add(new PatchModel
                 {
                     PropertyName = nameof(sourceDto.WorkplaceId),
                     PropertyValue = workplaceId
                 });
-            }
 
             await _unitOfWork.EquipmentForWorkplaces.PatchAsync(dto.Id, patchList);
         }
     }
 
     /// <summary>
-    /// Remove a record from the data source
+    ///     Remove a record from the data source
     /// </summary>
     /// <param name="id">unique identifier of record</param>
     /// <returns>the number of records successfully removed</returns>
@@ -219,9 +203,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
             _unitOfWork.EquipmentForWorkplaces.Remove(entity);
             return await _unitOfWork.Commit();
         }
-        else
-        {
-            throw new ArgumentException("The equipment for workplace for removing doesn't exist", nameof(id));
-        }
+
+        throw new ArgumentException("The equipment for workplace for removing doesn't exist", nameof(id));
     }
 }

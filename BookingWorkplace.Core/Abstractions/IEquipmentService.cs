@@ -20,5 +20,4 @@ public interface IEquipmentService
     Task<int> UpdateAsync(Guid id, EquipmentDto equipment);
 
     //REMOVE
-    Task<int> DeleteAsync(Guid id);
 }
