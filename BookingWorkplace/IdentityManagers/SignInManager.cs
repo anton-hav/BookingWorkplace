@@ -1,6 +1,8 @@
 ﻿using BookingWorkplace.Core.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using BookingWorkplace.Core.DataTransferObjects;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace BookingWorkplace.IdentityManagers;
 
@@ -35,6 +37,29 @@ public class SignInManager : ISignInManager
     public async Task SignOutAsync()
     {
         await Context.SignOutAsync();
+    }
+
+    /// <summary>
+    /// Sign in a principal for a default authentication scheme
+    /// </summary>
+    /// <param name="user"><see cref="UserDto"/></param>
+    /// <returns>The Task</returns>
+    public async Task SignInAsync(UserDto user)
+    {
+        var claims = new List<Claim>()
+        {
+            new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+            new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
+        };
+
+        var identity = new ClaimsIdentity(claims,
+            "ApplicationCookie",
+            ClaimsIdentity.DefaultNameClaimType,
+            ClaimsIdentity.DefaultRoleClaimType
+        );
+
+        await Context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity));
     }
 
     /// <summary>

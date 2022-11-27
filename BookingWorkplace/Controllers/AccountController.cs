@@ -121,26 +121,6 @@ namespace BookingWorkplace.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        private async Task Authenticate(string email)
-        {
-            var userDto = await _userService.GetUserByEmailAsync(email);
-
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, userDto.Email),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, userDto.Role.Name)
-            };
-
-            var identity = new ClaimsIdentity(claims,
-                "ApplicationCookie",
-                ClaimsIdentity.DefaultNameClaimType,
-                ClaimsIdentity.DefaultRoleClaimType
-            );
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity));
-        }
-
         [HttpGet]
         public async Task<IActionResult> UserLoginPreview()
         {
@@ -162,6 +142,18 @@ namespace BookingWorkplace.Controllers
 
             var user = _mapper.Map<UserDataModel>(dto);
             return Ok(user);
+        }
+        
+        /// <summary>
+        /// Authenticate user by email.
+        /// </summary>
+        /// <param name="email">a user email as a string</param>
+        /// <returns>The Task</returns>
+        private async Task Authenticate(string email)
+        {
+            var userDto = await _userService.GetUserByEmailAsync(email);
+
+            await _signInManager.SignInAsync(userDto);
         }
     }
 }

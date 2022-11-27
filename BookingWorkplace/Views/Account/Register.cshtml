@@ -10,6 +10,12 @@
 
     <form asp-controller="Account" asp-action="Register" method="post">
         <div asp-validation-summary="All" class="text-danger"></div>
+        
+        <div class="mb-3">
+            <label for="full-name" class="form-label">Full name</label>
+            <input type="text" asp-for="FullName" class="form-control" id="full-name">
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input asp-for="Email" type="email" class="form-control" id="email" required>

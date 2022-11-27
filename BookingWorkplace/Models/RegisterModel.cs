@@ -25,4 +25,6 @@ public class RegisterModel
         ErrorMessage = "The password and confirmation password do not match.")]
     [DataType(DataType.Password)]
     public string PasswordConfirmation { get; set; }
+
+    public string? FullName { get; set; }
 }
