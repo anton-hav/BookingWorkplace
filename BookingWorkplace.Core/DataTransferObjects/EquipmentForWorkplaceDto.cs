@@ -9,6 +9,4 @@ public class EquipmentForWorkplaceDto
 
     public Guid WorkplaceId { get; set; }
     public WorkplaceDto Workplace { get; set; }
-
-    public int Count {get; set; }
 }

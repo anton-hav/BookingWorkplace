@@ -9,6 +9,4 @@ public class EquipmentForWorkplace : IBaseEntity
 
     public Guid WorkplaceId { get; set; }
     public Workplace Workplace { get; set; }
-
-    public int Count {get; set; }
 }

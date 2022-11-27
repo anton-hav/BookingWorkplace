@@ -8,13 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookingWorkplace.Models;
 
-public class PreBookingModel //: IValidatableObject
+public class PreBookingModel 
 {
-    //[Required]
-    //public DateTime TimeFrom { get; set; }
-    //[Required]
-    //public DateTime TimeTo { get; set; }
-    
+
     public FilterParameters Filters { get; set; }
     
     public List<SelectListItem> EquipmentList { get; set; }
@@ -22,11 +18,4 @@ public class PreBookingModel //: IValidatableObject
     public List<WorkplaceDto>? Workplaces { get; set; }
 
     public List<WorkplaceDto>? UnderstaffedWorkplaces {get; set; }
-
-    //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    //{
-    //    var result = TimeTo < TimeFrom || TimeFrom < DateTime.Today;
-    //    if (result)
-    //        yield return new ValidationResult("Incorrect time interval selected.");
-    //}
 }

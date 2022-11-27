@@ -15,8 +15,5 @@ public class EquipmentForWorkplaceModel
     [Required]
     public Guid WorkplaceId { get; set; }
 
-    [Range(1, int.MaxValue, ErrorMessage = "Count must be a positive number")]
-    public int Count { get; set; }
-
     public SelectList AvailableEquipmentList { get; set; }
 }
