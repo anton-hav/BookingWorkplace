@@ -123,7 +123,7 @@ public class WorkplaceService : IWorkplaceService
                                 || (parameters.TimeFrom > res.TimeFrom
                                     && parameters.TimeTo < res.TimeTo)));
 
-        foreach (var param in parameters.Ids)
+        foreach (var param in parameters.EquipmentIds)
         {
             query = query.Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(param)));
         }

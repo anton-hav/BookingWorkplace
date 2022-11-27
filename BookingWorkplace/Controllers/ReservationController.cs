@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BookingReservation.Core.Abstractions;
 using BookingWorkplace.Business;
+using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.DataBase.Entities;
@@ -29,6 +30,7 @@ namespace BookingWorkplace.Controllers
         private readonly IWorkplaceService _workplaceService;
         private readonly ISessionManager _sessionManager;
         private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
+        private readonly IBookingEventHandler _bookingEventHandler;
 
         public ReservationController(IMapper mapper,
             IUserManager userManager,
@@ -36,7 +38,8 @@ namespace BookingWorkplace.Controllers
             IEquipmentService equipmentService,
             IWorkplaceService workplaceService, 
             ISessionManager sessionManager, 
-            IEquipmentForWorkplaceService equipmentForWorkplaceService)
+            IEquipmentForWorkplaceService equipmentForWorkplaceService, 
+            IBookingEventHandler bookingEventHandler)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -45,6 +48,7 @@ namespace BookingWorkplace.Controllers
             _workplaceService = workplaceService;
             _sessionManager = sessionManager;
             _equipmentForWorkplaceService = equipmentForWorkplaceService;
+            _bookingEventHandler = bookingEventHandler;
         }
 
         public async Task<IActionResult> Index(QueryStringParameters parameters)
@@ -96,7 +100,7 @@ namespace BookingWorkplace.Controllers
                         WorkplaceId = Guid.Empty,
                         TimeFrom = filters.TimeFrom.Equals(default) ? DateTime.Today : filters.TimeFrom,
                         TimeTo = filters.TimeTo.Equals(default) ? DateTime.Today : filters.TimeTo,
-                        EquipmentIds = filters.Ids.IsNullOrEmpty() ? new List<Guid>() : filters.Ids
+                        EquipmentIds = filters.EquipmentIds.IsNullOrEmpty() ? new List<Guid>() : filters.EquipmentIds
                     };
 
                     await _sessionManager.SetSessionAsync(reservationSession);
@@ -115,12 +119,12 @@ namespace BookingWorkplace.Controllers
                 else
                     session.TimeTo = filters.TimeTo;
 
-                if (filters.Ids.IsNullOrEmpty())
+                if (filters.EquipmentIds.IsNullOrEmpty())
                 {
-                    filters.Ids = new List<Guid>();
+                    filters.EquipmentIds = new List<Guid>();
                 }
 
-                session.EquipmentIds = filters.Ids;
+                session.EquipmentIds = filters.EquipmentIds;
 
                 await _sessionManager.SetSessionAsync(session);
 
@@ -130,7 +134,7 @@ namespace BookingWorkplace.Controllers
                 {
                     Text = equip.Type,
                     Value = equip.Id.ToString("N"),
-                    Selected = filters.Ids != null && filters.Ids.Contains(equip.Id)
+                    Selected = filters.EquipmentIds != null && filters.EquipmentIds.Contains(equip.Id)
                 }).ToList();
 
                 // gets the list of relevant workplaces
@@ -184,44 +188,38 @@ namespace BookingWorkplace.Controllers
                 if (id.Equals(Guid.Empty))
                     throw new ArgumentException(nameof(id));
                 
-                var isExist = await _sessionManager.IsSessionExistAsync();
-                if (!isExist)
-                    throw new ArgumentException("Session not found. Possibly the lifetime of the session has been exceeded.");
+                var reservation = await CollectDataForNewReservation(id);
 
-                var session = await _sessionManager.GetSessionAsync();
-                var userId = await _userManager.GetUserIdAsync();
-
-                var dto = new ReservationDto()
-                {
-                    Id = session.ReservationId,
-                    UserId = userId,
-                    WorkplaceId = id,
-                    TimeFrom = session.TimeFrom,
-                    TimeTo = session.TimeTo,
-                };
-
-                var isValid = await IsReservationValid(dto.WorkplaceId, dto.TimeFrom, dto.TimeTo);
+                var isValid = await IsReservationValid(reservation.WorkplaceId, reservation.TimeFrom, reservation.TimeTo);
 
                 if (!isValid)
                     throw new ArgumentException("A reservation with current parameters does not valid.");
 
-
-                var filters = new FilterParameters()
-                {
-                    Ids = session.EquipmentIds,
-                    TimeFrom = session.TimeFrom,
-                    TimeTo = session.TimeTo,
-                };
+                var session = await _sessionManager.GetSessionAsync();
 
                 var relocatedEquipment = await _equipmentForWorkplaceService
-                    .GetMovableEquipmentForWorkplaceAsync(filters);
+                    .GetMovableEquipmentForWorkplaceAsync(session);
+
+                var equipmentMovements = new List<EquipmentMovementData>();
+
+                foreach (var equip in relocatedEquipment)
+                {
+                    var movement = await _equipmentForWorkplaceService
+                        .GetEquipmentMovementDataAsync(equip.Id, id);
+
+                    equipmentMovements.Add(movement);
+                }
 
                 await _equipmentForWorkplaceService
                     .PrepareEquipmentForRelocationToWorkplaceAsync(relocatedEquipment, id);
 
-                var result = await _reservationService.CreateReservationAsync(dto);
+                var result = await _reservationService.CreateReservationAsync(reservation);
                 if (result > 0)
+                {
+                    await HandleNewReservation(reservation);
+                    await HandleRelocationEquipment(equipmentMovements);
                     await _sessionManager.RemoveSessionAsync();
+                }
 
                 return RedirectToAction("Index", "Reservation"); ;
             }
@@ -307,6 +305,62 @@ namespace BookingWorkplace.Controllers
                 await _reservationService.IsReservationForUserExistAsync(userId, timeFrom, timeTo);
 
             return !isReservationExist && !isReservationForUserExist;
+        }
+
+        /// <summary>
+        /// Gets data from the storage for a new reservation.
+        /// </summary>
+        /// <param name="workplaceId">a workplace unique identifier as a <see cref="Guid"/></param>
+        /// <returns><see cref="ReservationDto"/></returns>
+        /// <exception cref="ArgumentException"></exception>
+        private async Task<ReservationDto> CollectDataForNewReservation(Guid workplaceId)
+        {
+            var isSessionExist = await _sessionManager.IsSessionExistAsync();
+            if (!isSessionExist)
+                throw new ArgumentException("Session not found. Possibly the lifetime of the session has been exceeded.");
+
+            var session = await _sessionManager.GetSessionAsync();
+            var userId = await _userManager.GetUserIdAsync();
+
+            var reservation = new ReservationDto()
+            {
+                Id = session.ReservationId,
+                UserId = userId,
+                WorkplaceId = workplaceId,
+                TimeFrom = session.TimeFrom,
+                TimeTo = session.TimeTo,
+            };
+
+            return reservation;
+        }
+
+        /// <summary>
+        /// Prepares information and initiates inform event processing for a new reservation.
+        /// </summary>
+        /// <param name="reservation"><see cref="ReservationDto"/></param>
+        /// <returns>The Task</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        private async Task HandleNewReservation(ReservationDto reservation)
+        {
+            var email = (await _userManager.GetUserAsync()).Email;
+            var workplace = await _workplaceService.GetWorkplaceByIdAsync(reservation.WorkplaceId);
+
+            if (email.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(email));
+
+            if (workplace == null) 
+                throw new ArgumentNullException(nameof(workplace));
+
+            await _bookingEventHandler.ReportNewReservationAsync(email, workplace, reservation);
+        }
+
+        private async Task HandleRelocationEquipment(List<EquipmentMovementData> movements)
+        {
+            foreach (var movement in movements)
+            {
+                await _bookingEventHandler.ReportEquipmentMovementAsync(movement);
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 
 public interface IFilterParameters
 {
-    List<Guid> Ids { get; set; }
+    List<Guid> EquipmentIds { get; set; }
     DateTime TimeFrom { get; set; }
     DateTime TimeTo { get; set; }
 

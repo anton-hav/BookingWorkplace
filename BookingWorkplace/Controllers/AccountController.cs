@@ -17,17 +17,20 @@ namespace BookingWorkplace.Controllers
         private readonly IMapper _mapper;
         private readonly ISignInManager _signInManager;
         private readonly IUserManager _userManager;
+        private readonly IBookingEventHandler _bookingEventHandler;
 
 
         public AccountController(IUserService userService, 
             IMapper mapper, 
             ISignInManager signInManager, 
-            IUserManager userManager)
+            IUserManager userManager, 
+            IBookingEventHandler bookingEventHandler)
         {
             _userService = userService;
             _mapper = mapper;
             _signInManager = signInManager;
             _userManager = userManager;
+            _bookingEventHandler = bookingEventHandler;
         }
 
         [HttpGet]
@@ -47,6 +50,7 @@ namespace BookingWorkplace.Controllers
                     var result = await _userService.RegisterUserAsync(userDto);
                     if (result > 0)
                     {
+                        await _bookingEventHandler.ReportNewUserRegistration(model.Email);
                         await Authenticate(model.Email);
                         return RedirectToAction("Index", "Home");
                     }

@@ -97,6 +97,26 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
+    /// Gets the end date of the workplace reservation.
+    /// </summary>
+    /// <param name="workplaceId"></param>
+    /// <returns>the last day of the job reservation as a <see cref="DateTime"/></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<DateTime> GetEndDateOfReservationByWorkplaceId(Guid workplaceId)
+    {
+        var entity = await _unitOfWork.Reservations
+            .Get()
+            .Where(r => r.WorkplaceId == workplaceId)
+            .OrderByDescending(r => r.TimeTo)
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            throw new ArgumentException(nameof(workplaceId));
+
+        return entity.TimeTo;
+    }
+
+    /// <summary>
     /// Checks for existing a record in the data source that matches the parameters.
     /// </summary>
     /// <param name="workplaceId">workplace unique identifier as a <see cref="Guid"/></param>

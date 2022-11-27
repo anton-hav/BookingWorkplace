@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BookingReservation.Core.Abstractions;
 using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
@@ -12,12 +13,15 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
 {
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IReservationService _reservationService;
 
     public EquipmentForWorkplaceService(IMapper mapper, 
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork, 
+        IReservationService reservationService)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _reservationService = reservationService;
     }
 
     /// <summary>
@@ -35,6 +39,54 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
 
         var dto = _mapper.Map<EquipmentForWorkplaceDto>(entity);
         return dto;
+    }
+
+    /// <summary>
+    /// Gets equipment by the equipment for the workplace unique identifier.
+    /// </summary>
+    /// <param name="id">an unique identifier of the equipment for workplace as a <see cref="Guid"/></param>
+    /// <returns><see cref="EquipmentDto"/></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<EquipmentDto> GetEquipmentByEquipmentForWorkplaceIdAsync(Guid id)
+    {
+        var entity = await _unitOfWork.EquipmentForWorkplaces
+            .Get()
+            .Include(equip => equip.Equipment)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(equip => equip.Id.Equals(id));
+
+        if (entity == null)
+            throw new ArgumentException(nameof(id));
+
+        return _mapper.Map<EquipmentDto>(entity.Equipment);
+    }
+
+    /// <summary>
+    /// Gets a equipment movement data.
+    /// </summary>
+    /// <param name="id">a unique identifier of the equipment for the workplace</param>
+    /// <param name="destinationId">a unique destination identifier</param>
+    /// <returns>a equipment movement data as a <see cref="EquipmentMovementData"/></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<EquipmentMovementData> GetEquipmentMovementDataAsync(Guid id, Guid destinationId)
+    {
+        var entity = await _unitOfWork.EquipmentForWorkplaces.GetByIdAsync(id);
+
+        if (entity == null)
+            throw new ArgumentException(nameof(id));
+
+        var dateOfMovement = await _reservationService
+            .GetEndDateOfReservationByWorkplaceId(entity.WorkplaceId);
+
+        var equipmentMovementData = new EquipmentMovementData()
+        {
+            EquipmentId = id,
+            PreviousWorkplace = entity.WorkplaceId,
+            DestinationWorkplace = destinationId,
+            DateOfMovement = dateOfMovement
+        };
+
+        return equipmentMovementData;
     }
 
     public PagedList<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByQueryStringParameters(IQueryStringParameters parameters)
@@ -61,7 +113,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     {
         var result = new List<bool>();
 
-        foreach (var id in parameters.Ids)
+        foreach (var id in parameters.EquipmentIds)
         {
             var entity = await _unitOfWork.EquipmentForWorkplaces
                 .Get()
@@ -80,7 +132,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     public async Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters)
     {
         var list = new List<EquipmentForWorkplaceDto>();
-        foreach (var id in parameters.Ids)
+        foreach (var id in parameters.EquipmentIds)
         {
             var entity = await _unitOfWork.EquipmentForWorkplaces
                 .Get()

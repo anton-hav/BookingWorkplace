@@ -10,6 +10,7 @@ public interface IReservationService
     Task<ReservationDto> GetReservationByIdAsync(Guid id);
     PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters);
     PagedList<ReservationDto> GetReservationsByQueryStringParameters(IQueryStringParameters parameters, Guid userId);
+    Task<DateTime> GetEndDateOfReservationByWorkplaceId(Guid workplaceId);
     Task<bool> IsReservationExistAsync(Guid workplaceId, DateTime timeFrom, DateTime timeTo);
     Task<bool> IsReservationForUserExistAsync(Guid userId, DateTime timeFrom, DateTime timeTo);
 

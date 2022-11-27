@@ -62,6 +62,8 @@ namespace BookingWorkplace
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
+            builder.Services.AddScoped<IBookingEventHandler, BookingEventHandler>();
+            builder.Services.AddScoped<ISender, ConsoleSender>();
 
             // Add custom identity services
             builder.Services.AddScoped<ISignInManager, SignInManager>();

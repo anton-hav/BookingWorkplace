@@ -6,6 +6,8 @@ public interface IEquipmentForWorkplaceService
 {
     //READ
     Task<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByIdAsync(Guid id);
+    Task<EquipmentDto> GetEquipmentByEquipmentForWorkplaceIdAsync(Guid id);
+    Task<EquipmentMovementData> GetEquipmentMovementDataAsync(Guid id, Guid destinationId);
     PagedList<EquipmentForWorkplaceDto> GetEquipmentForWorkplaceByQueryStringParameters(IQueryStringParameters parameters);
     Task<List<EquipmentForWorkplaceDto>> GetAvailableEquipmentForWorkplaceByWorkplaceId(Guid id);
     Task<bool> IsEquipmentForWorkplaceExistAsync(string typeName);

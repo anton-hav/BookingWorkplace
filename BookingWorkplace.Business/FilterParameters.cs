@@ -5,7 +5,7 @@ namespace BookingWorkplace.Business;
 
 public class FilterParameters : IFilterParameters
 {
-    public List<Guid> Ids { get; set; }
+    public List<Guid> EquipmentIds { get; set; }
     public DateTime TimeFrom { get; set; }
     public DateTime TimeTo { get; set; }
 
@@ -17,18 +17,11 @@ public class FilterParameters : IFilterParameters
             { nameof(TimeTo), TimeTo.ToString("u") }
         };
 
-        for (int i = 0; i < Ids.Count; i++)
+        for (int i = 0; i < EquipmentIds.Count; i++)
         {
-            dict.Add($"{nameof(Ids)}[{i}]", Ids[i].ToString("N"));
+            dict.Add($"{nameof(EquipmentIds)}[{i}]", EquipmentIds[i].ToString("N"));
         };
 
         return dict;
     }
-
-    //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    //{
-    //    var result = TimeTo < TimeFrom || TimeFrom < DateTime.Today;
-    //    if (result)
-    //        yield return new ValidationResult("Incorrect time interval selected.");
-    //}
 }
