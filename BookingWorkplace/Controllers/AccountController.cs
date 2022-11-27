@@ -83,17 +83,14 @@ namespace BookingWorkplace.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            //var isPasswordCorrect = await _userService
-            //    .CheckUserPasswordAsync(model.Email, model.Password);
             if (ModelState.IsValid)
             {
                 await Authenticate(model.Email);
                 return RedirectToAction("Index", "Home");
             }
-            else
-            {
-                return View();
-            }
+
+            return View();
+
         }
 
         [HttpPost]

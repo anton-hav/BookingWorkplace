@@ -35,7 +35,8 @@
         <h3>Equipment</h3>
         <div class="shadow p-3 mb-5 rounded">
             <h3>Adding equipment to the workplace</h3>
-            <partial name="_AddingEquipmentForm" model="new EquipmentForWorkplaceModel() { WorkplaceId = Model.Id, AvailableEquipmentList = Model.AvailableEquipmentList }"/>
+            <partial name="_AddingEquipmentForm" 
+                     model="new EquipmentForWorkplaceModel { WorkplaceId = Model.Id, AvailableEquipmentList = Model.AvailableEquipmentList }"/>
         </div>
     }
 
@@ -52,7 +53,7 @@
                     @{
                         if (Model.IsAdmin)
                         {
-                                <th>Actions</th>
+                            <th>Actions</th>
                         }
                     }
                 </tr>
@@ -71,12 +72,15 @@
                                 {
                                     <td>
                                         <div class="btn-group" role="group" aria-label="Actions">
-                                            <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="RemoveEquipmentFromWorkplace" asp-route-id="@item.Id">Remove</a>
+                                            <a type="button" 
+                                               class="btn btn-link" 
+                                               asp-controller="Workplace" 
+                                               asp-action="RemoveEquipmentFromWorkplace" 
+                                               asp-route-id="@item.Id">Remove</a>
                                         </div>
                                     </td>
                                 }
                             }
-                            
                         </tr>
                         i++;
                     }
@@ -84,14 +88,11 @@
                 </tbody>
             </table>
         </div>
-        
     }
-
-    
 }
 
 @section Scripts
-    {
+{
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 }

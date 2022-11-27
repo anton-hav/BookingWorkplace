@@ -80,7 +80,7 @@
 @{
     if (Model.Equipment.Any())
     {
-        <div class="row m-3">
+        <div class="row m-3 shadow p-3 mb-5 rounded">
             <table class="table table-sm">
                 <thead>
                     <tr>
@@ -104,7 +104,6 @@
                                             if (Model.IsAdmin)
                                             {
                                                 <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                                <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="" asp-route-id="@item.Id">Delete</a>
                                             }
                                         }
                                     </div>

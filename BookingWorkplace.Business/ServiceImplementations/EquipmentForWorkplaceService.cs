@@ -59,7 +59,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     /// <returns>A boolean</returns>
     public async Task<bool> IsPossibleToFindNecessaryEquipmentToMoveAsync(IFilterParameters parameters)
     {
-        var result = true;
+        var result = new List<bool>();
 
         foreach (var id in parameters.Ids)
         {
@@ -71,10 +71,10 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
                 .Where(eFW => eFW.EquipmentId.Equals(id))
                 .FirstOrDefaultAsync();
             
-            result = entity != null;
+            result.Add(entity != null);
         }
         
-        return result;
+        return result.TrueForAll(r => r);
     }
 
     public async Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters)
