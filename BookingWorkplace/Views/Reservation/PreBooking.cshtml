@@ -2,33 +2,54 @@
     Layout = "_Layout";
 }
 
-@using Microsoft.AspNetCore.Http.Features
-@using Microsoft.AspNetCore.Components.Web.Virtualization
 @model PreBookingModel
 @{
     ViewData["Title"] = "Add new reservation";
 }
 
-<h2>Add information about new reservation</h2>
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>Add new reservation.</h2>
+        <div class="col-10 text-start">
+
+            <p>To create a new reservation you must:</p>
+            <ul>
+                <li>Select the date from.</li>
+                <li>Select the date to.</li>
+                <li>Enable filters for equipment that should be in the workplace (if necessary).</li>
+                <li>Press the Find button.</li>
+                <li>Choose the right workplace and press 'Reserve'.</li>
+            </ul>
+            <p>If you don't know the calendar well and don't know which day comes first. Don't worry, the app won't let you get it wrong and will get it right.</p>
+        </div>
+    </div>
+</div>
 
 <div class="shadow p-3 mb-5 rounded">
+    <div class="text-center mb-3">
+        <h3>Filters</h3>
+    </div>
     <form asp-controller="Reservation" asp-action="PreBooking" method="get">
         <dl class="row">
-            <dt class="col-sm-2">
-                <label for="time-from" class="form-label">Time from</label>
-            </dt>
-            <dd class="col-sm-10">
-                <input type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@Model.Filters.TimeFrom.ToString("yyyy-MM-dd")" asp-for="Filters.TimeFrom" class="form-control" onchange="shiftValueForTimeTo()" id="time-from" />
-                <span asp-validation-for="Filters.TimeFrom" class="text-danger"></span>
-            </dd>
+            <div class="row">
+                <dt class="col-sm-2">
+                    <label for="time-from" class="form-label">Time from</label>
+                </dt>
+                <dd class="col-sm-4">
+                    <input type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@Model.Filters.TimeFrom.ToString("yyyy-MM-dd")" asp-for="Filters.TimeFrom" class="form-control" onchange="shiftValueForTimeTo()" id="time-from"/>
+                    <span asp-validation-for="Filters.TimeFrom" class="text-danger"></span>
+                </dd>
+            </div>
+            <div class="row">
+                <dt class="col-sm-2">
+                    <label for="time-to" class="form-label">Time to</label>
+                </dt>
+                <dd class="col-sm-4">
+                    <input type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@Model.Filters.TimeTo.ToString("yyyy-MM-dd")" asp-for="Filters.TimeTo" class="form-control" onchange="disableAllReserveButton()" id="time-to"/>
+                    <span asp-validation-for="Filters.TimeTo" class="text-danger"></span>
+                </dd>
+            </div>
 
-            <dt class="col-sm-2">
-                <label for="time-to" class="form-label">Time to</label>
-            </dt>
-            <dd class="col-sm-10">
-                <input type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@Model.Filters.TimeTo.ToString("yyyy-MM-dd")" asp-for="Filters.TimeTo" class="form-control" onchange="disableAllReserveButton()" id="time-to" />
-                <span asp-validation-for="Filters.TimeTo" class="text-danger"></span>
-            </dd>
 
         </dl>
 
@@ -44,9 +65,8 @@
                                     @{
                                         var partSize = Model.EquipmentList.Count() / 3;
 
-                                        for (var i = partSize * j; i < (partSize * (j+1) + ((Model.EquipmentList.Count - partSize *3) * ((j+1)/3))); i++)
+                                        for (var i = partSize * j; i < partSize * (j + 1) + (Model.EquipmentList.Count - partSize * 3) * ((j + 1) / 3); i++)
                                         {
-
                                             <div class="form-switch">
                                                 <input class="form-check-input"
                                                        type="checkbox"
@@ -60,16 +80,20 @@
                                             </div>
                                         }
                                     }
-                                    
                                 </div>
                             }
-
                         }
                     </div>
                 </ul>
             }
         }
-        <input type="submit" class="btn btn-primary" value="Submit" />
+
+
+        <div class="row justify-content-center">
+            <div class="d-grid gap-2 col-6 mx-auto">
+                <input type="submit" class="btn btn-primary" value="Find"/>
+            </div>
+        </div>
     </form>
 </div>
 
@@ -78,7 +102,10 @@
     if (Model.Workplaces.Any())
     {
         <div class="shadow p-3 mb-5 rounded">
-            <h2>List of suitable workplaces</h2>
+            <div class="text-center mb-3">
+                <h3>List of suitable workplaces</h3>
+            </div>
+            <p>This list contains information about workplaces that fully meet your requirements.</p>
             <div class="row m-3">
                 <table class="table table-sm">
                     <thead>
@@ -104,14 +131,14 @@
                                     <form asp-controller="Reservation" asp-action="Create" method="post" class="d-flex">
                                         <input name="id" value="@item.Id" hidden>
 
-                                            <span class="d-inline-block" >
-                                                <button name="reserve-button" class="btn btn-outline-success" type="submit">Reserve</button>
+                                        <span class="d-inline-block">
+                                            <button name="reserve-button" class="btn btn-outline-success" type="submit">Reserve</button>
                                         </span>
                                     </form>
                                 </td>
                             </tr>
                             number++;
-                        };
+                        }
                     }
                     </tbody>
                 </table>
@@ -124,51 +151,51 @@
     if (Model.UnderstaffedWorkplaces.Any())
     {
         <div class="shadow p-3 mb-5 rounded">
-            <h2>List of understaffed workplaces</h2>
+            <div class="text-center mb-3">
+                <h3>List of understaffed workplaces</h3>
+            </div>
+            <p>This list contains information about workplaces that we can staff for you.
+            You don't have to worry about equipment availability. Just tell us what you need and rest assured that the equipment will be waiting for you at your workplace.</p>
             <div class="row m-3">
                 <table class="table table-sm">
                     <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Floor</th>
-                            <th>Room</th>
-                            <th>Desk number</th>
-                            <th>Actions</th>
-                        </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Floor</th>
+                        <th>Room</th>
+                        <th>Desk number</th>
+                        <th>Actions</th>
+                    </tr>
                     </thead>
                     <tbody class="table-group-divider">
-                        @{
-                            var number = 1;
-                            foreach (var item in Model.UnderstaffedWorkplaces)
-                            {
-                                <tr class="align-middle">
-                                    <td>@number</td>
-                                    <td>@item.Floor</td>
-                                    <td>@item.Room</td>
-                                    <td>@item.DeskNumber</td>
-                                    <td>
-                                        <form asp-controller="Reservation" asp-action="Create" method="post" class="d-flex">
-                                            <input name="id" value="@item.Id" hidden>
+                    @{
+                        var number = 1;
+                        foreach (var item in Model.UnderstaffedWorkplaces)
+                        {
+                            <tr class="align-middle">
+                                <td>@number</td>
+                                <td>@item.Floor</td>
+                                <td>@item.Room</td>
+                                <td>@item.DeskNumber</td>
+                                <td>
+                                    <form asp-controller="Reservation" asp-action="Create" method="post" class="d-flex">
+                                        <input name="id" value="@item.Id" hidden>
 
-                                            <span class="d-inline-block" >
-                                                <button name="reserve-button" class="btn btn-outline-success" type="submit">Reserve</button>
-                                            </span>
-                                        </form>
-                                    </td>
-                                </tr>
-                                number++;
-                            };
+                                        <span class="d-inline-block">
+                                            <button name="reserve-button" class="btn btn-outline-success" type="submit">Reserve</button>
+                                        </span>
+                                    </form>
+                                </td>
+                            </tr>
+                            number++;
                         }
+                    }
                     </tbody>
                 </table>
             </div>
         </div>
     }
 }
-
-
-
-
 
 @section Scripts
 {

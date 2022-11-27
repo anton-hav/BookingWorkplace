@@ -7,7 +7,14 @@
     ViewData["Title"] = "Workplace details";
 }
 
-<h2>Workplace details</h2>
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>Workplace details</h2>
+        <div class="col-8 text-start">
+            <p>On this page you will find information about the workplace.</p>
+        </div>
+    </div>
+</div>
 
 @{
     if (Model.IsAdmin)
@@ -15,7 +22,6 @@
         <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
     }
 }
-
 
 @if (Model != null)
 {
@@ -35,7 +41,7 @@
         <h3>Equipment</h3>
         <div class="shadow p-3 mb-5 rounded">
             <h3>Adding equipment to the workplace</h3>
-            <partial name="_AddingEquipmentForm" 
+            <partial name="_AddingEquipmentForm"
                      model="new EquipmentForWorkplaceModel { WorkplaceId = Model.Id, AvailableEquipmentList = Model.AvailableEquipmentList }"/>
         </div>
     }
@@ -70,11 +76,13 @@
                                 {
                                     <td>
                                         <div class="btn-group" role="group" aria-label="Actions">
-                                            <a type="button" 
-                                               class="btn btn-link" 
-                                               asp-controller="Workplace" 
-                                               asp-action="RemoveEquipmentFromWorkplace" 
-                                               asp-route-id="@item.Id">Remove</a>
+                                            <a type="button"
+                                               class="btn btn-link"
+                                               asp-controller="Workplace"
+                                               asp-action="RemoveEquipmentFromWorkplace"
+                                               asp-route-id="@item.Id">
+                                                Remove
+                                            </a>
                                         </div>
                                     </td>
                                 }

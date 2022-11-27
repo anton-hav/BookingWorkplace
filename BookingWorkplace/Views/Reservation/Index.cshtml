@@ -7,11 +7,19 @@
 @{
     ViewData["Title"] = "Reservations";
 }
-
-<h2>@ViewData["Title"]</h2>
-
-
-
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>@ViewData["Title"]</h2>
+        <div class="col-8 text-start">
+            @{
+                var descriptions = Model.IsAdmin
+                    ? "On this page, you can access your booking history. The search bar knows how to search only by the workplace and by the user."
+                    : "You can access your booking history on this page. To book a new job, click 'To Book New'. If you want to cancel a scheduled reservation, click Cancel to the desired record. The search bar only knows how to search for a workplace.";
+                <p>@descriptions</p>
+            }
+        </div>
+    </div>
+</div>
 
 @{
     var prevDisabled = !Model.Reservations.HasPrevious ? "disabled" : "";
@@ -28,7 +36,7 @@
         @{
             if (!Model.IsAdmin)
             {
-                <a type="button" class="btn btn-primary" asp-controller="Reservation" asp-action="PreBooking">Create new</a>
+                <a type="button" class="btn btn-primary" asp-controller="Reservation" asp-action="PreBooking">To Book New</a>
             }
         }
         <ul class="pagination justify-content-center">
@@ -145,3 +153,4 @@
         </div>
     }
 }
+

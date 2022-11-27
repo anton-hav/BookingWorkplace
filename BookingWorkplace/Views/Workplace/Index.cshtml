@@ -8,8 +8,19 @@
     ViewData["Title"] = "Workplaces";
 }
 
-<h2>@ViewData["Title"]</h2>
-
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>@ViewData["Title"]</h2>
+        <div class="col-8 text-start">
+            @{
+                var descriptions = Model.IsAdmin
+                    ? "On this page you can view a list of workplaces. To add information about a new workplace, click 'Add new'."
+                    : "On this page you can view a list of workplaces.";
+                <p>@descriptions</p>
+            }
+        </div>
+    </div>
+</div>
 
 
 
@@ -28,7 +39,7 @@
         @{
             if (Model.IsAdmin)
             {
-                <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Create">Create new</a>
+                <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Create">Add new</a>
             }
         }
         <ul class="pagination justify-content-center">
