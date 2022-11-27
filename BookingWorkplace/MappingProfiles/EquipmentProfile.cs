@@ -14,5 +14,8 @@ public class EquipmentProfile : Profile
 
         CreateMap<EquipmentDto, EquipmentModel>();
         CreateMap<EquipmentModel, EquipmentDto>();
+
+        CreateMap<EquipmentDto, EquipmentDetailModel>();
+        CreateMap<EquipmentDetailModel, EquipmentDto>();
     }
 }

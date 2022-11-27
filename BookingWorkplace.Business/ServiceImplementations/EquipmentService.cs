@@ -41,6 +41,29 @@ public class EquipmentService : IEquipmentService
     }
 
     /// <summary>
+    /// Gets equipment by Id includes equipment for workplaces info and workplace info 
+    /// </summary>
+    /// <param name="id">unique identifier as a <see cref="Guid"/></param>
+    /// <returns><see cref="EquipmentDto"/> corresponding to the id</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<EquipmentDto> GetEquipmentWithFullInfoByIdAsync(Guid id)
+    {
+        var entity = await _unitOfWork.Equipment
+            .Get()
+            .Where(entity => entity.Id.Equals(id))
+            .Include(entity => entity.EquipmentForWorkplaces)
+            .ThenInclude(eFW => eFW.Workplace)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            throw new ArgumentException("No record of the equipment was found in the database.", nameof(id));
+
+        var dto = _mapper.Map<EquipmentDto>(entity);
+        return dto;
+    }
+
+    /// <summary>
     /// Gets all equipment records from the data source.
     /// </summary>
     /// <returns>The <see cref="List&lt;T&gt;"/> of <see cref="EquipmentDto"/></returns>

@@ -171,6 +171,34 @@ namespace BookingWorkplace.Controllers
         }
 
         /// <summary>
+        /// Shows the details page
+        /// </summary>
+        /// <param name="id">the equipment unique identifier</param>
+        /// <returns><see cref="ViewResult"/> for response</returns>
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            try
+            {
+                var dto = await _equipmentService.GetEquipmentWithFullInfoByIdAsync(id);
+
+                var model = _mapper.Map<EquipmentDetailModel>(dto);
+
+                return View(model);
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{ex.Message}. {Environment.NewLine} {ex.StackTrace}");
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary>
         /// Checks the equipment for existing equipment with the same type name in the data source.
         /// </summary>
         /// <param name="type">type name of equipment</param>
