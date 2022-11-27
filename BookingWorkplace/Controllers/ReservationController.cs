@@ -220,7 +220,7 @@ namespace BookingWorkplace.Controllers
                     .PrepareEquipmentForRelocationToWorkplaceAsync(relocatedEquipment, id);
 
                 var result = await _reservationService.CreateReservationAsync(dto);
-                if (result.Equals(1))
+                if (result > 0)
                     await _sessionManager.RemoveSessionAsync();
 
                 return RedirectToAction("Index", "Reservation"); ;
