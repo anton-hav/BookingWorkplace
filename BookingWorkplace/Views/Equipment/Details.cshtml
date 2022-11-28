@@ -1,0 +1,71 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model EquipmentDetailModel
+
+@{
+    ViewData["Title"] = "Equipment details";
+}
+
+
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>@ViewData["Title"]</h2>
+        <div class="col-8 text-start">
+            <p>On this page you will find information about the equipment.</p>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="container">
+        <dl class="row">
+            <dt class="col-sm-1 fs-3">Type</dt>
+            <dd class="col-sm-10 fs-3">@Model.Type</dd>
+        </dl>
+    </div>
+
+    @{
+        if (Model.EquipmentForWorkplaces.Any())
+        {
+            <div class="shadow p-3 mb-5 rounded">
+                <h3>List of workplace with the equipment</h3>
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Floor</th>
+                        <th>Room</th>
+                        <th>Desk number</th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                    @{
+                        var i = 1;
+                        foreach (var item in Model.EquipmentForWorkplaces)
+                        {
+                            <tr class="align-middle">
+                                <td>@i</td>
+                                <td>@item.Workplace.Floor</td>
+                                <td>@item.Workplace.Room</td>
+                                <td>@item.Workplace.DeskNumber</td>
+                            </tr>
+                            i++;
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>This equipment is not used anywhere.</p>
+        }
+    }
+</div>
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

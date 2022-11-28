@@ -1,0 +1,129 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using BookingWorkplace.Business
+@model ListOfEquipmentModel
+
+@{
+    ViewData["Title"] = "Equipment";
+}
+
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>@ViewData["Title"]</h2>
+        <div class="col-8 text-start">
+            @{
+                var descriptions = Model.IsAdmin
+                    ? "On this page you can view a list of equipment. To add information about a new equipment, click 'Add new'."
+                    : "On this page you can view a list of equipment.";
+                <p>@descriptions</p>
+            }
+        </div>
+    </div>
+</div>
+
+
+@{
+    var prevDisabled = !Model.Equipment.HasPrevious ? "disabled" : "";
+    var nextDisabled = !Model.Equipment.HasNext ? "disabled" : "";
+    var paginationParameters = new PaginationParameters
+    {
+        PageSize = Model.Equipment.PageSize,
+        CurrentPage = Model.Equipment.CurrentPage
+    };
+}
+
+<nav class="navbar" aria-label="page navigation">
+    <div class="container-fluid">
+        @{
+            if (Model.IsAdmin)
+            {
+                <a type="button" class="btn btn-primary" asp-controller="Equipment" asp-action="Create">Add new</a>
+            }
+        }
+        <ul class="pagination justify-content-center">
+            <li class="page-item @prevDisabled">
+                <a class="page-link"
+                   asp-controller="Equipment"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters { PageSize = Model.Equipment.PageSize, CurrentPage = Model.Equipment.CurrentPage - 1 }).ToDictionary();">
+                    Previous
+                </a>
+            </li>
+            @{
+                for (var i = 1; i <= Model.Equipment.TotalPages; i++)
+                {
+                    if (i == Model.Equipment.CurrentPage)
+                    {
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-controller="Equipment"
+                               asp-action="Index"
+                               asp-all-route-data="@(new PaginationParameters { PageSize = Model.Equipment.PageSize, CurrentPage = i }).ToDictionary();">
+                                @i
+                            </a>
+                        </li>
+                    }
+                }
+            }
+            <li class="page-item @nextDisabled">
+                <a class="page-link"
+                   asp-controller="Equipment"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters { PageSize = Model.Equipment.PageSize, CurrentPage = Model.Equipment.CurrentPage + 1 }).ToDictionary();">
+                    Next
+                </a>
+            </li>
+        </ul>
+        <partial name="_SearchBar" model="Model.SearchString"/>
+
+    </div>
+</nav>
+
+
+@{
+    if (Model.Equipment.Any())
+    {
+        <div class="row m-3 shadow p-3 mb-5 rounded">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Type name</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                @{
+                    var number = (Model.Equipment.CurrentPage - 1) * Model.Equipment.PageSize + 1;
+                    foreach (var item in Model.Equipment)
+                    {
+                        <tr class="align-middle">
+                            <td>@number</td>
+                            <td>@item.Type</td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Actions">
+                                    <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                                    @{
+                                        if (Model.IsAdmin)
+                                        {
+                                            <a type="button" class="btn btn-link" asp-controller="Equipment" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                        number++;
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}

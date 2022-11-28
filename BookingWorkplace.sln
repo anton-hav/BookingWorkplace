@@ -5,6 +5,16 @@ VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWorkplace", "BookingWorkplace\BookingWorkplace.csproj", "{B6AC8D4A-6CCC-48C8-A75E-81061701FAB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWorkplace.Core", "BookingWorkplace.Core\BookingWorkplace.Core.csproj", "{5BAAFCE3-9483-453F-991E-8989B1DE8A93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWorkplace.Business", "BookingWorkplace.Business\BookingWorkplace.Business.csproj", "{0E3DE588-7FED-4EB5-A774-760E6C52F822}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWorkplace.DataBase", "BookingWorkplace.DataBase\BookingWorkplace.DataBase.csproj", "{939500ED-8243-4BF6-A6DD-41D490D67C84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWorkplace.Data.Repositories", "BookingWorkplace.Data.Repositories\BookingWorkplace.Data.Repositories.csproj", "{CDCBF8F9-B36A-4AC0-AD1D-41D2BD5D9806}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWorkplace.Data.Abstractions", "BookingWorkplace.Data.Abstractions\BookingWorkplace.Data.Abstractions.csproj", "{E66C5BDA-0FEC-4766-BF56-CED7B2C1FC20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +25,26 @@ Global
 		{B6AC8D4A-6CCC-48C8-A75E-81061701FAB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6AC8D4A-6CCC-48C8-A75E-81061701FAB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6AC8D4A-6CCC-48C8-A75E-81061701FAB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BAAFCE3-9483-453F-991E-8989B1DE8A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BAAFCE3-9483-453F-991E-8989B1DE8A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BAAFCE3-9483-453F-991E-8989B1DE8A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BAAFCE3-9483-453F-991E-8989B1DE8A93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E3DE588-7FED-4EB5-A774-760E6C52F822}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E3DE588-7FED-4EB5-A774-760E6C52F822}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E3DE588-7FED-4EB5-A774-760E6C52F822}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E3DE588-7FED-4EB5-A774-760E6C52F822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{939500ED-8243-4BF6-A6DD-41D490D67C84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{939500ED-8243-4BF6-A6DD-41D490D67C84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{939500ED-8243-4BF6-A6DD-41D490D67C84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{939500ED-8243-4BF6-A6DD-41D490D67C84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDCBF8F9-B36A-4AC0-AD1D-41D2BD5D9806}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDCBF8F9-B36A-4AC0-AD1D-41D2BD5D9806}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDCBF8F9-B36A-4AC0-AD1D-41D2BD5D9806}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDCBF8F9-B36A-4AC0-AD1D-41D2BD5D9806}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E66C5BDA-0FEC-4766-BF56-CED7B2C1FC20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E66C5BDA-0FEC-4766-BF56-CED7B2C1FC20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E66C5BDA-0FEC-4766-BF56-CED7B2C1FC20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E66C5BDA-0FEC-4766-BF56-CED7B2C1FC20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

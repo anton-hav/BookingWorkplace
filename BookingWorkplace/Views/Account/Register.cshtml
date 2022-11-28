@@ -1,0 +1,48 @@
+﻿@model RegisterModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h1>Register</h1>
+        <div class="col-6 text-start">
+
+            <p>To register, you need to enter your email address and enter your password twice. If you can't remember your name - no problem, we don't need it.</p>
+            <p>Write down your password - we don't store it in the database and can't restore it. </p>
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label for="full-name" class="form-label">Full name</label>
+                    <input type="text" asp-for="FullName" class="form-control" id="full-name">
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input asp-for="Email" type="email" class="form-control" id="email" required>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" asp-for="Password" class="form-control" id="password">
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="password-confirmation" class="form-label">Password Confirmation</label>
+                    <input type="password" asp-for="PasswordConfirmation" class="form-control" id="password-confirmation">
+                    <span asp-validation-for="PasswordConfirmation" class="text-danger"></span>
+                </div>
+
+                <input type="submit" class="btn btn-primary" value="Submit">
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

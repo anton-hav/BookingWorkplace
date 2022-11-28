@@ -1,0 +1,134 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using BookingWorkplace.Business
+@model ListOfWorkplacesModel
+
+@{
+    ViewData["Title"] = "Workplaces";
+}
+
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>@ViewData["Title"]</h2>
+        <div class="col-8 text-start">
+            @{
+                var descriptions = Model.IsAdmin
+                    ? "On this page you can view a list of workplaces. To add information about a new workplace, click 'Add new'."
+                    : "On this page you can view a list of workplaces.";
+                <p>@descriptions</p>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+@{
+    var prevDisabled = !Model.Workplaces.HasPrevious ? "disabled" : "";
+    var nextDisabled = !Model.Workplaces.HasNext ? "disabled" : "";
+    var paginationParameters = new PaginationParameters()
+            {
+                PageSize = Model.Workplaces.PageSize,
+                CurrentPage = Model.Workplaces.CurrentPage
+            };
+}
+
+<nav class="navbar" aria-label="page navigation">
+    <div class="container-fluid">
+        @{
+            if (Model.IsAdmin)
+            {
+                <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Create">Add new</a>
+            }
+        }
+        <ul class="pagination justify-content-center">
+            <li class="page-item @prevDisabled">
+                <a class="page-link"
+                   asp-controller="Workplace"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Workplaces.PageSize, CurrentPage = Model.Workplaces.CurrentPage - 1 }).ToDictionary();">
+                    Previous
+                </a>
+            </li>
+            @{
+                for (var i = 1; i <= Model.Workplaces.TotalPages; i++)
+                {
+                    if (i == Model.Workplaces.CurrentPage)
+                    {
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-controller="Workplace"
+                               asp-action="Index"
+                               asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Workplaces.PageSize, CurrentPage = i }).ToDictionary();">
+                                @i
+                            </a>
+                        </li>
+                    }
+                }
+            }
+            <li class="page-item @nextDisabled">
+                <a class="page-link"
+                   asp-controller="Workplace"
+                   asp-action="Index"
+                   asp-all-route-data="@(new PaginationParameters() { PageSize = Model.Workplaces.PageSize, CurrentPage = Model.Workplaces.CurrentPage + 1 }).ToDictionary();">
+                    Next
+                </a>
+            </li>
+        </ul>
+        <partial name="_SearchBar" model="Model.SearchString"/>
+
+    </div>
+</nav>
+
+
+@{
+    if (Model.Workplaces.Any())
+    {
+        <div class="row m-3 shadow p-3 mb-5 rounded">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Floor</th>
+                        <th>Room</th>
+                        <th>Desk number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    @{
+                        var number = (Model.Workplaces.CurrentPage - 1) * Model.Workplaces.PageSize + 1;
+                        foreach (var item in Model.Workplaces)
+                        {
+                            <tr class="align-middle">
+                                <td>@number</td>
+                                <td>@item.Floor</td>
+                                <td>@item.Room</td>
+                                <td>@item.DeskNumber</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="Actions">
+                                        <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                                        @{
+                                            if (Model.IsAdmin)
+                                            {
+                                                <a type="button" class="btn btn-link" asp-controller="Workplace" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                            }
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                            number++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

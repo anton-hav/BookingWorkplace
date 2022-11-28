@@ -1,0 +1,104 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model WorkplaceWithEquipmentModel
+
+@{
+    ViewData["Title"] = "Workplace details";
+}
+
+<div class="text-center">
+    <div class="row justify-content-center">
+        <h2>Workplace details</h2>
+        <div class="col-8 text-start">
+            <p>On this page you will find information about the workplace.</p>
+        </div>
+    </div>
+</div>
+
+@{
+    if (Model.IsAdmin)
+    {
+        <a type="button" class="btn btn-primary" asp-controller="Workplace" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    }
+}
+
+@if (Model != null)
+{
+    <div class="container">
+        <dl class="row">
+            <dt class="col-sm-2">Floor</dt>
+            <dd class="col-sm-10">@Model.Floor</dd>
+            <dt class="col-sm-2">Room</dt>
+            <dd class="col-sm-10">@Model.Room</dd>
+            <dt class="col-sm-2">Desk number</dt>
+            <dd class="col-sm-10">@Model.DeskNumber</dd>
+        </dl>
+    </div>
+
+    if (Model.IsAdmin)
+    {
+        <h3>Equipment</h3>
+        <div class="shadow p-3 mb-5 rounded">
+            <h3>Adding equipment to the workplace</h3>
+            <partial name="_AddingEquipmentForm"
+                     model="new EquipmentForWorkplaceModel { WorkplaceId = Model.Id, AvailableEquipmentList = Model.AvailableEquipmentList }"/>
+        </div>
+    }
+
+    if (Model.EquipmentForWorkplaces.Any())
+    {
+        <div class="shadow p-3 mb-5 rounded">
+            <h3>List of workplace equipment</h3>
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    @{
+                        if (Model.IsAdmin)
+                        {
+                            <th>Actions</th>
+                        }
+                    }
+                </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                @{
+                    var i = 1;
+                    foreach (var item in Model.EquipmentForWorkplaces.OrderBy(eFW => eFW.Equipment.Type))
+                    {
+                        <tr class="align-middle">
+                            <td>@i</td>
+                            <td>@item.Equipment.Type</td>
+                            @{
+                                if (Model.IsAdmin)
+                                {
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Actions">
+                                            <a type="button"
+                                               class="btn btn-link"
+                                               asp-controller="Workplace"
+                                               asp-action="RemoveEquipmentFromWorkplace"
+                                               asp-route-id="@item.Id">
+                                                Remove
+                                            </a>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                        i++;
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
