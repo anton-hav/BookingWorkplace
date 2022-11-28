@@ -31,6 +31,79 @@ This project implements a service to manage workplace reservations in the office
 ## Application preview
 This part in progress
 
+<details>
+  <summary>Registration</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1eyHNVze2NxJBIexSsawyAlyh_LfS2omt)
+</details>
+
+<details>
+  <summary>Login</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1LtagXhUNxgP5ZT9t7OO5jbFPVn-mS4uk)
+</details>
+
+<details>
+  <summary>Logout</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1MPRx5aAvz1ylIq4vXCsTMes02edF2_Cu)
+</details>
+
+<details>
+  <summary>Unauthorise access</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=15ayhkD43iyzvOZLo3NfK_D_aCwQVzt0z)
+</details>
+
+<details>
+  <summary>Workplace by user</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1Z_US57Wuj7wJXm_Ulg5talmnUsphOT5B)
+</details>
+
+<details>
+  <summary>Equipmen by user</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1vLnAvaZlr2tuR6wyP56y3XKgRoVjvDxW)
+</details>
+
+<details>
+  <summary>Reservation by user</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1O8d6hWXeJSd9phT6X4kpQ8kKuDf8KEX5)
+</details>
+
+<details>
+  <summary>Safe calendar</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1oP7lqeS2bVj31CeMtL-DPiwdOdXYT32w)
+</details>
+
+<details>
+  <summary>Workplace by admin</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1U-SdJrey051_e9cLn52dJSYkx-K4BFks)
+</details>
+
+<details>
+  <summary>Equipmen by admin</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=10uACAlXONtn6WdYDp8Wvjd7OxAdIkFa4)
+</details>
+
+<details>
+  <summary>Send a message about new reservation</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=1rEJaTypu7hAMUohUvzNam51SUhqtNDVe)
+</details>
+
+<details>
+  <summary>Send a message about new equipment movement</summary>
+
+  ![image](https://drive.google.com/uc?export=view&id=15I5cvfGhhypEr9Tmw7SpAYsNWeo6aFYk)
+</details>
+
+
 ## How to configure
 ### 1. Change database connection string
 Firstly, you should change connection string in `appsettings.json`

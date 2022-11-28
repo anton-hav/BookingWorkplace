@@ -110,11 +110,8 @@ public class ReservationService : IReservationService
             .Where(r => r.WorkplaceId == workplaceId)
             .OrderByDescending(r => r.TimeTo)
             .FirstOrDefaultAsync();
-
-        if (entity == null)
-            throw new ArgumentException(nameof(workplaceId));
-
-        return entity.TimeTo;
+        
+        return entity?.TimeTo ?? DateTime.Today;
     }
 
     /// <summary>
