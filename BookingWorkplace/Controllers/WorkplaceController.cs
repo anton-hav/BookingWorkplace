@@ -32,6 +32,13 @@ public class WorkplaceController : Controller
         _userManager = userManager;
     }
 
+    /// <summary>
+    ///     Endpoint for the workplace main page.
+    /// </summary>
+    /// <param name="parameters">
+    ///     <see cref="QueryStringParameters" />
+    /// </param>
+    /// <returns><see cref="ViewResult" /> with <see cref="ListOfWorkplacesModel" /></returns>
     [HttpGet]
     public IActionResult Index(QueryStringParameters parameters)
     {
@@ -239,6 +246,13 @@ public class WorkplaceController : Controller
         }
     }
 
+    /// <summary>
+    ///     Endpoint for adding equipment to the workplace.
+    /// </summary>
+    /// <param name="id">a equipment for workplace unique identifier</param>
+    /// <returns>
+    ///     <see cref="RedirectToActionResult" />
+    /// </returns>
     [HttpPost]
     public async Task<IActionResult> AddEquipmentToWorkplace(EquipmentForWorkplaceModel model)
     {
@@ -262,6 +276,13 @@ public class WorkplaceController : Controller
         }
     }
 
+    /// <summary>
+    ///     Endpoint for removing equipment from the workplace.
+    /// </summary>
+    /// <param name="id">a equipment for workplace unique identifier</param>
+    /// <returns>
+    ///     <see cref="RedirectToActionResult" />
+    /// </returns>
     [HttpGet]
     public async Task<IActionResult> RemoveEquipmentFromWorkplace(Guid id)
     {

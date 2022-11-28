@@ -32,7 +32,6 @@ public class UnitOfWork : IUnitOfWork
         Roles = roles;
     }
 
-
     public async Task<int> Commit()
     {
         return await _dbContext.SaveChangesAsync();

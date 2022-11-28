@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BookingWorkplace.Business;
+﻿using BookingWorkplace.Business;
 using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
@@ -17,7 +16,6 @@ namespace BookingWorkplace.Controllers;
 [Authorize(Roles = "User, Admin")]
 public class ReservationController : Controller
 {
-    private readonly IMapper _mapper;
     private readonly IUserManager _userManager;
     private readonly IReservationService _reservationService;
     private readonly IEquipmentService _equipmentService;
@@ -26,8 +24,7 @@ public class ReservationController : Controller
     private readonly IEquipmentForWorkplaceService _equipmentForWorkplaceService;
     private readonly IBookingEventHandler _bookingEventHandler;
 
-    public ReservationController(IMapper mapper,
-        IUserManager userManager,
+    public ReservationController(IUserManager userManager,
         IReservationService reservationService,
         IEquipmentService equipmentService,
         IWorkplaceService workplaceService,
@@ -35,7 +32,6 @@ public class ReservationController : Controller
         IEquipmentForWorkplaceService equipmentForWorkplaceService,
         IBookingEventHandler bookingEventHandler)
     {
-        _mapper = mapper;
         _userManager = userManager;
         _reservationService = reservationService;
         _equipmentService = equipmentService;
@@ -45,6 +41,11 @@ public class ReservationController : Controller
         _bookingEventHandler = bookingEventHandler;
     }
 
+    /// <summary>
+    ///     Endpoint for the reservation main page.
+    /// </summary>
+    /// <param name="parameters">filter parameters as a <see cref="QueryStringParameters" /></param>
+    /// <returns><see cref="ViewResult" /> with <see cref="ListOfEquipmentModel" /></returns>
     public async Task<IActionResult> Index(QueryStringParameters parameters)
     {
         try
@@ -75,6 +76,11 @@ public class ReservationController : Controller
         }
     }
 
+    /// <summary>
+    ///     Endpoint for the booking page.
+    /// </summary>
+    /// <param name="filters">filter as a <see cref="FilterParameters" /></param>
+    /// <returns><see cref="ViewResult" /> with <see cref="PreBookingModel" /></returns>
     [Authorize(Roles = "User")]
     [HttpGet]
     public async Task<IActionResult> PreBooking([FromQuery] FilterParameters filters)
@@ -167,6 +173,13 @@ public class ReservationController : Controller
         }
     }
 
+    /// <summary>
+    ///     Endpoint for the reservation creation
+    /// </summary>
+    /// <param name="id">a workplace id as a <see cref="Guid" /></param>
+    /// <returns>
+    ///     <see cref="RedirectToActionResult" />
+    /// </returns>
     [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<IActionResult> Create(Guid id)
@@ -223,7 +236,14 @@ public class ReservationController : Controller
             return StatusCode(500);
         }
     }
-    
+
+    /// <summary>
+    ///     Endpoint for the reservation deletion
+    /// </summary>
+    /// <param name="id">a reservation unique identifier as a <see cref="Guid" /></param>
+    /// <returns>
+    ///     <see cref="RedirectToActionResult" />
+    /// </returns>
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -326,6 +346,11 @@ public class ReservationController : Controller
         await _bookingEventHandler.ReportNewReservationAsync(email, workplace, reservation);
     }
 
+    /// <summary>
+    ///     Prepares information and initiates inform event processing for a equipment movements
+    /// </summary>
+    /// <param name="movements">a <see cref="List{T}" /> of <see cref="EquipmentForWorkplaceDto" /></param>
+    /// <returns>The Task</returns>
     private async Task HandleRelocationEquipment(List<EquipmentMovementData> movements)
     {
         foreach (var movement in movements) await _bookingEventHandler.ReportEquipmentMovementAsync(movement);

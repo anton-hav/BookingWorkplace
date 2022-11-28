@@ -97,6 +97,11 @@ public class WorkplaceService : IWorkplaceService
         return list;
     }
 
+    /// <summary>
+    ///     Gets workplaces.
+    /// </summary>
+    /// <param name="parameters">a filter as <see cref="IFilterParameters" /></param>
+    /// <returns><see cref="List{T}" /> where T is <see cref="WorkplaceDto" /></returns>
     public List<WorkplaceDto> GetWorkplacesByFilterParameters(IFilterParameters parameters)
     {
         var query = _unitOfWork.Workplaces
@@ -222,10 +227,5 @@ public class WorkplaceService : IWorkplaceService
 
         await _unitOfWork.Workplaces.PatchAsync(id, patchList);
         return await _unitOfWork.Commit();
-    }
-
-    public async Task<int> DeleteAsync(Guid id)
-    {
-        throw new NotImplementedException();
     }
 }

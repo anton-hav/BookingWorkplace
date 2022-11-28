@@ -24,6 +24,10 @@ public class PaginationParameters : IPaginationParameters
         set => _pageSize = value is > 0 and > MaxPageSize ? MaxPageSize : value;
     }
 
+    /// <summary>
+    ///     Converter object to IDictionary
+    /// </summary>
+    /// <returns><see cref="IDictionary{TKey,TValue}" /> where TKey is the property name, TValue is the property value</returns>
     public IDictionary<string, string> ToDictionary()
     {
         return new Dictionary<string, string>

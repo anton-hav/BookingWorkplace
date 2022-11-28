@@ -107,6 +107,12 @@ public class EquipmentService : IEquipmentService
         return list;
     }
 
+    /// <summary>
+    ///     Gets available equipment for adding to the current workplace.
+    /// </summary>
+    /// <param name="id">a workplace unique identifier</param>
+    /// <returns><see cref="List{T}" /> where T is <see cref="EquipmentDto" /></returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<List<EquipmentDto>> GetAvailableEquipmentToAddToWorkplaceByWorkplaceIdAsync(Guid id)
     {
         var list = await _unitOfWork.Equipment

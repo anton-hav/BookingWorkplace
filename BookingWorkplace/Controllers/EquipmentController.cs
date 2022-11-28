@@ -25,6 +25,13 @@ public class EquipmentController : Controller
         _userManager = userManager;
     }
 
+    /// <summary>
+    ///     Endpoint for the equipment main page
+    /// </summary>
+    /// <param name="parameters">
+    ///     <see cref="QueryStringParameters" />
+    /// </param>
+    /// <returns><see cref="ViewResult" /> with <see cref="ListOfEquipmentModel" /></returns>
     [HttpGet]
     public IActionResult Index(QueryStringParameters parameters)
     {

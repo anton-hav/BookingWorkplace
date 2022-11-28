@@ -116,6 +116,11 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
         return result.TrueForAll(r => r);
     }
 
+    /// <summary>
+    ///     Gets a list of movable equipment.
+    /// </summary>
+    /// <param name="parameters">a filter as <see cref="IFilterParameters" /></param>
+    /// <returns><see cref="List{T}" /> where T is <see cref="EquipmentMovementData" /></returns>
     public async Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters)
     {
         var list = new List<EquipmentForWorkplaceDto>();

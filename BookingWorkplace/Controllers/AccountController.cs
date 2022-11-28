@@ -8,6 +8,9 @@ using Serilog;
 
 namespace BookingWorkplace.Controllers;
 
+/// <summary>
+///     Controller providing the account operation.
+/// </summary>
 public class AccountController : Controller
 {
     private readonly IUserService _userService;
@@ -30,12 +33,21 @@ public class AccountController : Controller
         _bookingEventHandler = bookingEventHandler;
     }
 
+    /// <summary>
+    ///     Shows a Register View
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult Register()
     {
         return View();
     }
 
+    /// <summary>
+    ///     Processes the registration model, if the model is valid creates a new user, if not valid shows a Register View
+    /// </summary>
+    /// <param name="model">a register model as a <see cref="RegisterModel" /></param>
+    /// <returns><see cref="ViewResult" /> for response</returns>
     [HttpPost]
     public async Task<IActionResult> Register(RegisterModel model)
     {
@@ -57,6 +69,11 @@ public class AccountController : Controller
         return View(model);
     }
 
+    /// <summary>
+    ///     Checks email for existence in the data source.
+    /// </summary>
+    /// <param name="email">user email as a string</param>
+    /// <returns><see cref="OkObjectResult" /> if does not exist or <see cref="StatusCodeResult" /> if exists</returns>
     [HttpPost]
     public async Task<IActionResult> CheckEmailForExistence(string email)
     {
@@ -73,12 +90,21 @@ public class AccountController : Controller
         }
     }
 
+    /// <summary>
+    ///     Shows a Login View
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult Login()
     {
         return View();
     }
 
+    /// <summary>
+    ///     Processes the login model, if the model is valid authenticate a new user, if not valid shows a Login View
+    /// </summary>
+    /// <param name="model">a login model as a <see cref="LoginModel" /></param>
+    /// <returns><see cref="ViewResult" /> if model does not valid or <see cref="RedirectToActionResult" /></returns>
     [HttpPost]
     public async Task<IActionResult> Login(LoginModel model)
     {
@@ -91,6 +117,14 @@ public class AccountController : Controller
         return View();
     }
 
+    /// <summary>
+    ///     Validate user login data.
+    /// </summary>
+    /// <param name="password">a user password as a string</param>
+    /// <param name="email">a user email as a string</param>
+    /// <returns>
+    ///     <see cref="OkObjectResult" />
+    /// </returns>
     [HttpPost]
     public async Task<IActionResult> CheckLoginData(string password, string email)
     {
@@ -107,7 +141,10 @@ public class AccountController : Controller
         }
     }
 
-
+    /// <summary>
+    ///     Logout
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> Logout()
     {
@@ -116,6 +153,12 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    /// <summary>
+    ///     Gets user login preview as a response
+    /// </summary>
+    /// <returns>
+    ///     <see cref="ViewResult" />
+    /// </returns>
     [HttpGet]
     public async Task<IActionResult> UserLoginPreview()
     {
@@ -129,6 +172,10 @@ public class AccountController : Controller
         return View();
     }
 
+    /// <summary>
+    ///     Gets a user data
+    /// </summary>
+    /// <returns><see cref="OkObjectResult" /> with <see cref="UserDataModel" /></returns>
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetUserData()
