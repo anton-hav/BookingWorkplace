@@ -92,11 +92,6 @@ Database contains four entities:
 >**Note**
 > The first and last name fields are intentionally replaced by the FullName field in the Users table. This approach allows people of different cultures and ethnicities to use the application.
 
-- Question: keeps question text and state (enable/disable) 
-- Answer: keeps text and the flag IsCorrect and Question Id
-- Game: keeps only Id. The game entity is added for the possibility of later expansion of functionality such as adding cues (like 50:50). 
-- GameQuestion: keeps QuestionId, GameId and the flag IsSuccessful.
-
 <details>
   <summary>Database structure</summary>
 
