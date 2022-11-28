@@ -14,7 +14,9 @@
             @{
                 var descriptions = Model.IsAdmin
                     ? "On this page, you can access your booking history. The search bar knows how to search only by the workplace and by the user."
-                    : "You can access your booking history on this page. To book a new job, click 'To Book New'. If you want to cancel a scheduled reservation, click Cancel to the desired record. The search bar only knows how to search for a workplace.";
+                    : "You can access your booking history on this page. To book a new job, click 'To Book New'. If you want to cancel a scheduled reservation, click Cancel to the desired record. " +
+                      "The search bar only knows how to search for a workplace. Important. You cannot make two reservations for the same day, if you try to do so you will get an error message. " +
+                      "If you have already booked a workplace for the required day, cancel the existing reservation before booking a new workplace.";
                 <p>@descriptions</p>
             }
         </div>
