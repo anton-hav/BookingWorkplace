@@ -9,7 +9,7 @@ using Serilog;
 namespace BookingWorkplace.Controllers;
 
 /// <summary>
-///     Controller providing the account operation.
+///     Controller provides the account operation.
 /// </summary>
 public class AccountController : Controller
 {
