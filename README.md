@@ -104,6 +104,7 @@ This part in progress
 </details>
 
 
+
 ## How to configure
 ### 1. Change database connection string
 Firstly, you should change connection string in `appsettings.json`
@@ -191,6 +192,13 @@ The BookingWorkplace contains five controllers:
 
 ### Features of integration
 The application uses the `ConsoleSender` class, which sends information about important events to the console. If you need to send messages to messenger or email, you should develop a `CustomSender` class that implements the `ISender` interface. And connect it to IOC in `Program.cs`
+
+### Description of the workplace selection algorithm
+The application uses the following rules when selecting workplaces:
+- if a workplace is reserved now or in the future - you cannot move equipment from it;
+- the same workplace cannot be reserved twice for the same time;
+- a user cannot have several workplaces reserved for the same day;
+- equipment doesn't just show up, it has to be in the workplace. Then you can try to move it to where it is needed
 
 ## Key features:
 ASP.Net Core MVC, Entity Framework Core, Microsoft SQL Server, C#, JavaScript, Serilog, Automapper, Newtonsoft Json.Net, Dependepcy Injection, Generic Repository, Unit of Work, Bootstrap, Claims, Sessions, Pagination, Search filters
