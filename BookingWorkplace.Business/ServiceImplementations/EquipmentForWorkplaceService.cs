@@ -13,14 +13,17 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IReservationService _reservationService;
+    private readonly IWorkplaceService _workplaceService;
 
     public EquipmentForWorkplaceService(IMapper mapper,
         IUnitOfWork unitOfWork,
-        IReservationService reservationService)
+        IReservationService reservationService, 
+        IWorkplaceService workplaceService)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _reservationService = reservationService;
+        _workplaceService = workplaceService;
     }
 
     /// <summary>
@@ -120,11 +123,13 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
     ///     Gets a list of movable equipment.
     /// </summary>
     /// <param name="parameters">a filter as <see cref="IFilterParameters" /></param>
+    /// <param name="workplaceId">a unique identifier of reserved workplace as <see cref="Guid" /></param>
     /// <returns><see cref="List{T}" /> where T is <see cref="EquipmentMovementData" /></returns>
-    public async Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters)
+    public async Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters, Guid workplaceId)
     {
+        var missingEquipment = await _workplaceService.GetListOfMissingEquipment(workplaceId, parameters.EquipmentIds);
         var list = new List<EquipmentForWorkplaceDto>();
-        foreach (var id in parameters.EquipmentIds)
+        foreach (var id in missingEquipment)
         {
             var entity = await _unitOfWork.EquipmentForWorkplaces
                 .Get()
@@ -132,6 +137,7 @@ public class EquipmentForWorkplaceService : IEquipmentForWorkplaceService
                     !eFW.Workplace.Reservations
                         .Any(r => r.TimeTo >= parameters.TimeFrom))
                 .Where(eFW => eFW.EquipmentId.Equals(id))
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
 
             if (entity != null)

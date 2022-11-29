@@ -3,7 +3,6 @@ using BookingWorkplace.Core;
 using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Models;
-using BookingWorkplace.SessionUtils;
 using BookingWorkplace.SessionUtils.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -91,43 +90,13 @@ public class ReservationController : Controller
             var isExist = await _sessionManager.IsSessionExistAsync();
 
             if (!isExist)
-            {
-                var userId = await _userManager.GetUserIdAsync();
-                var reservationSession = new ReservationSession
-                {
-                    ReservationId = Guid.NewGuid(),
-                    UserId = userId,
-                    WorkplaceId = Guid.Empty,
-                    TimeFrom = filters.TimeFrom.Equals(default) ? DateTime.Today : filters.TimeFrom,
-                    TimeTo = filters.TimeTo.Equals(default) ? DateTime.Today : filters.TimeTo,
-                    EquipmentIds = filters.EquipmentIds.IsNullOrEmpty() ? new List<Guid>() : filters.EquipmentIds
-                };
+                await _sessionManager.CreateNewReservationSessionAsync(filters);
 
-                await _sessionManager.SetSessionAsync(reservationSession);
-            }
-
-            // checks and initiates value for date fields of filters
-            var session = await _sessionManager.GetSessionAsync();
-
-            if (filters.TimeFrom.Equals(default))
-                filters.TimeFrom = session.TimeFrom;
-            else
-                session.TimeFrom = filters.TimeFrom;
-
-            if (filters.TimeTo.Equals(default))
-                filters.TimeTo = session.TimeTo;
-            else
-                session.TimeTo = filters.TimeTo;
-
-            if (filters.EquipmentIds.IsNullOrEmpty()) filters.EquipmentIds = new List<Guid>();
-
-            session.EquipmentIds = filters.EquipmentIds;
-
-            await _sessionManager.SetSessionAsync(session);
+            filters = await _sessionManager.SynchronizeFilterAndSessionAsync(filters);
 
             // generates the list of select items for the filter bar
-            var equipmentList = await _equipmentService.GetAllEquipmentAsync();
-            var equipmentSelectList = equipmentList.Select(equip => new SelectListItem
+            var equipmentSelectList = (await _equipmentService.GetAllEquipmentAsync())
+                .Select(equip => new SelectListItem
             {
                 Text = equip.Type,
                 Value = equip.Id.ToString("N"),
@@ -199,7 +168,7 @@ public class ReservationController : Controller
             var session = await _sessionManager.GetSessionAsync();
 
             var relocatedEquipment = await _equipmentForWorkplaceService
-                .GetMovableEquipmentForWorkplaceAsync(session);
+                .GetMovableEquipmentForWorkplaceAsync(session, id);
 
             var equipmentMovements = new List<EquipmentMovementData>();
 

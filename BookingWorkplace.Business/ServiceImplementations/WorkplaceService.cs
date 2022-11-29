@@ -5,6 +5,7 @@ using BookingWorkplace.Core.DataTransferObjects;
 using BookingWorkplace.Data.Abstractions;
 using BookingWorkplace.DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace BookingWorkplace.Business.ServiceImplementations;
 
@@ -120,8 +121,36 @@ public class WorkplaceService : IWorkplaceService
             query = query.Where(w => w.EquipmentForWorkplaces.Any(eq => eq.EquipmentId.Equals(param)));
 
         var dto = query.AsNoTracking().Select(w => _mapper.Map<WorkplaceDto>(w)).ToList();
-
         return dto;
+    }
+
+    /// <summary>
+    /// Gets a list of missing equipment for the current workplace
+    /// </summary>
+    /// <param name="id">a unique identifier of reserved workplace as <see cref="Guid"/></param>
+    /// <param name="equipmentIds">list of equipment selected by the user</param>
+    /// <returns><see cref="List{T}"/> where T is <see cref="Guid"/></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<List<Guid>> GetListOfMissingEquipment(Guid id, List<Guid> equipmentIds)
+    {
+        var entity = await _unitOfWork.Workplaces
+            .Get()
+            .Where(w => w.Id.Equals(id))
+            .Include(w => w.EquipmentForWorkplaces)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            throw new ArgumentException(nameof(id));
+
+        var staffedEquipment = entity.EquipmentForWorkplaces
+            .Select(equip => equip.EquipmentId)
+            .OrderBy(equip => equip)
+            .ToList();
+
+        var result = equipmentIds.Except(staffedEquipment).ToList();
+
+        return result;
     }
 
     /// <summary>

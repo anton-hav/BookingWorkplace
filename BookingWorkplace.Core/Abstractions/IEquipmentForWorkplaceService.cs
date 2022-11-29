@@ -9,7 +9,9 @@ public interface IEquipmentForWorkplaceService
     Task<EquipmentDto> GetEquipmentByEquipmentForWorkplaceIdAsync(Guid id);
     Task<EquipmentMovementData> GetEquipmentMovementDataAsync(Guid id, Guid destinationId);
     Task<bool> IsPossibleToFindNecessaryEquipmentToMoveAsync(IFilterParameters parameters);
-    Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters);
+
+    Task<List<EquipmentForWorkplaceDto>> GetMovableEquipmentForWorkplaceAsync(IFilterParameters parameters,
+        Guid workplaceId);
 
     //CREATE
     Task<int> CreateEquipmentForWorkplaceAsync(EquipmentForWorkplaceDto dto);

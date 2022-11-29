@@ -1,5 +1,7 @@
-﻿using BookingWorkplace.Core.Abstractions;
+﻿using BookingWorkplace.Business;
+using BookingWorkplace.Core.Abstractions;
 using BookingWorkplace.SessionUtils.Abstractions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BookingWorkplace.SessionUtils.MangerImplementations;
 
@@ -66,6 +68,55 @@ public class SessionManager : ISessionManager
     {
         var sessionKey = await GetSessionKeyAsync();
         Context.Session.Set(sessionKey, session);
+    }
+
+    /// <summary>
+    /// Checks and initiates value for date fields of filters
+    /// </summary>
+    /// <param name="filters"><see cref="FilterParameters"/></param>
+    /// <returns><see cref="FilterParameters"/></returns>
+    public async Task<FilterParameters> SynchronizeFilterAndSessionAsync(FilterParameters filters)
+    {
+        var session = await GetSessionAsync();
+
+        if (filters.TimeFrom.Equals(default))
+            filters.TimeFrom = session.TimeFrom;
+        else
+            session.TimeFrom = filters.TimeFrom;
+
+        if (filters.TimeTo.Equals(default))
+            filters.TimeTo = session.TimeTo;
+        else
+            session.TimeTo = filters.TimeTo;
+
+        if (filters.EquipmentIds.IsNullOrEmpty()) filters.EquipmentIds = new List<Guid>();
+
+        session.EquipmentIds = filters.EquipmentIds;
+
+        await SetSessionAsync(session);
+
+        return filters;
+    }
+
+    /// <summary>
+    /// Create new reservation session
+    /// </summary>
+    /// <param name="filters"><see cref="FilterParameters"/></param>
+    /// <returns>The Task</returns>
+    public async Task CreateNewReservationSessionAsync(FilterParameters filters)
+    {
+        var userId = await _userManager.GetUserIdAsync();
+        var reservationSession = new ReservationSession
+        {
+            ReservationId = Guid.NewGuid(),
+            UserId = userId,
+            WorkplaceId = Guid.Empty,
+            TimeFrom = filters.TimeFrom.Equals(default) ? DateTime.Today : filters.TimeFrom,
+            TimeTo = filters.TimeTo.Equals(default) ? DateTime.Today : filters.TimeTo,
+            EquipmentIds = filters.EquipmentIds.IsNullOrEmpty() ? new List<Guid>() : filters.EquipmentIds
+        };
+
+        await SetSessionAsync(reservationSession);
     }
 
     /// <summary>

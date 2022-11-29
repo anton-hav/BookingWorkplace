@@ -9,6 +9,7 @@ public interface IWorkplaceService
     Task<WorkplaceDto> GetWorkplaceWithEquipmentByIdAsync(Guid id);
     PagedList<WorkplaceDto> GetWorkplacesByQueryStringParameters(IQueryStringParameters parameters);
     List<WorkplaceDto> GetWorkplacesByFilterParameters(IFilterParameters parameters);
+    Task<List<Guid>> GetListOfMissingEquipment(Guid id, List<Guid> equipmentIds);
 
     Task<List<WorkplaceDto>> GetPossibleWorkplacesByFilterParameters(IFilterParameters parameters,
         List<WorkplaceDto> exclusionList);
